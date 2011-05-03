@@ -12,8 +12,12 @@ import java.io.IOException;
  */
 public class FTD2XXException extends IOException {
 
-    public FTD2XXException(int ftStatus) {
+    public FTD2XXException(FTD2XX.FT_STATUS ftStatus) {
         super("D2XX error, ftStatus:" + ftStatus);
+    }
+
+    public FTD2XXException(int ftStatus) {
+        this(FTD2XX.FT_STATUS.values()[ftStatus]);
     }
 
     public FTD2XXException(Throwable cause) {

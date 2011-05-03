@@ -10,7 +10,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.ShortByReference;
 
 /**
@@ -23,40 +22,40 @@ public interface FTD2XX extends Library {
             (FTD2XX) Native.loadLibrary(
             /*(Platform.isWindows() ? */"ftd2xx", FTD2XX.class));
 
-    public static class FT_STATUS {
+    public static enum FT_STATUS {
 
-        public final static int FT_OK = 0,
-                FT_INVALID_HANDLE = 1,
-                FT_DEVICE_NOT_FOUND = 2,
-                FT_DEVICE_NOT_OPENED = 3,
-                FT_IO_ERROR = 4,
-                FT_INSUFFICIENT_RESOURCES = 5,
-                FT_INVALID_PARAMETER = 6,
-                FT_INVALID_BAUD_RATE = 7,
-                FT_DEVICE_NOT_OPENED_FOR_ERASE = 8,
-                FT_DEVICE_NOT_OPENED_FOR_WRITE = 9,
-                FT_FAILED_TO_WRITE_DEVICE = 10,
-                FT_EEPROM_READ_FAILED = 11,
-                FT_EEPROM_WRITE_FAILED = 12,
-                FT_EEPROM_ERASE_FAILED = 13,
-                FT_EEPROM_NOT_PRESENT = 14,
-                FT_EEPROM_NOT_PROGRAMMED = 15,
-                FT_INVALID_ARGS = 16,
-                FT_NOT_SUPPORTED = 17,
-                FT_OTHER_ERROR = 18;
+        FT_OK,
+        FT_INVALID_HANDLE,
+        FT_DEVICE_NOT_FOUND,
+        FT_DEVICE_NOT_OPENED,
+        FT_IO_ERROR,
+        FT_INSUFFICIENT_RESOURCES,
+        FT_INVALID_PARAMETER,
+        FT_INVALID_BAUD_RATE,
+        FT_DEVICE_NOT_OPENED_FOR_ERASE,
+        FT_DEVICE_NOT_OPENED_FOR_WRITE,
+        FT_FAILED_TO_WRITE_DEVICE,
+        FT_EEPROM_READ_FAILED,
+        FT_EEPROM_WRITE_FAILED,
+        FT_EEPROM_ERASE_FAILED,
+        FT_EEPROM_NOT_PRESENT,
+        FT_EEPROM_NOT_PROGRAMMED,
+        FT_INVALID_ARGS,
+        FT_NOT_SUPPORTED,
+        FT_OTHER_ERROR;
     }
 
-    public static class FT_DEVICE {
+    public static enum FT_DEVICE {
 
-        public final static int FT_DEVICE_232BM = 0,
-                FT_DEVICE_232AM = 1,
-                FT_DEVICE_100AX = 2,
-                FT_DEVICE_UNKNOWN = 3,
-                FT_DEVICE_2232C = 4,
-                FT_DEVICE_232R = 5,
-                FT_DEVICE_2232H = 6,
-                FT_DEVICE_4232H = 7,
-                FT_DEVICE_232H = 8;
+        FT_DEVICE_232BM,
+        FT_DEVICE_232AM,
+        FT_DEVICE_100AX,
+        FT_DEVICE_UNKNOWN,
+        FT_DEVICE_2232C,
+        FT_DEVICE_232R,
+        FT_DEVICE_2232H,
+        FT_DEVICE_4232H,
+        FT_DEVICE_232H;
     }
 
     public static class Flags {

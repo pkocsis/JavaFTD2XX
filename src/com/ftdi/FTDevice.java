@@ -34,7 +34,7 @@ public class FTDevice {
         IntByReference devNum = new IntByReference();
 
         int ftStatus = ftd2xx.FT_CreateDeviceInfoList(devNum);
-        if (!(ftStatus == FTD2XX.FT_STATUS.FT_OK)) {
+        if (!(ftStatus == FTD2XX.FT_STATUS.FT_OK.ordinal())) {
             throw new FTD2XXException(ftStatus);
         }
         Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
@@ -52,7 +52,7 @@ public class FTDevice {
         for (int i = 0; i < devNum.getValue(); i++) {
             ftStatus = ftd2xx.FT_GetDeviceInfoDetail(i, flag, devType, devID,
                     locID, devSerNum, devDesc, ftHandle);
-            if (!(ftStatus == FTD2XX.FT_STATUS.FT_OK)) {
+            if (!(ftStatus == FTD2XX.FT_STATUS.FT_OK.ordinal())) {
                 throw new FTD2XXException(ftStatus);
             }
             
