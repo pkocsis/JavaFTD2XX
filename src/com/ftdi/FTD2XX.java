@@ -15,7 +15,7 @@ import com.sun.jna.ptr.ShortByReference;
 
 /**
  *
- * @author kocsis
+ * @author Péter Kocsis
  */
 public interface FTD2XX extends Library {
 
@@ -736,7 +736,7 @@ public interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_CreateDeviceInfoList(LongByReference lpdwNumDevs);
+    int FT_CreateDeviceInfoList(IntByReference lpdwNumDevs);
 
     /**
      * This function returns an entry from the device information list. 
@@ -746,7 +746,7 @@ public interface FTD2XX extends Library {
      * FT error code.
      */
     int FT_GetDeviceInfoList(FT_DEVICE_LIST_INFO_NODE[] pDest,
-            LongByReference lpdwNumDevs);
+            IntByReference lpdwNumDevs);
 
     /**
      * This function returns an entry from the device information list.
@@ -764,9 +764,9 @@ public interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_GetDeviceInfoDetail(int dwIndex, LongByReference lpdwFlags,
-            LongByReference lpdwType, LongByReference lpdwID,
-            LongByReference lpdwLocId, String pcSerialNumber,
+    int FT_GetDeviceInfoDetail(int dwIndex, IntByReference lpdwFlags,
+            IntByReference lpdwType, IntByReference lpdwID,
+            IntByReference lpdwLocId, String pcSerialNumber,
             String pcDescription, IntByReference ftHandle);
 
     /**
