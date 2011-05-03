@@ -21,7 +21,7 @@ public interface FTD2XX extends Library {
 
     final FTD2XX INSTANCE = (FTD2XX) Native.synchronizedLibrary(
             (FTD2XX) Native.loadLibrary(
-            /*(Platform.isWindows() ? */"ftd2xx" /*: "ftd2xx""ftdi")*/, FTD2XX.class));
+            /*(Platform.isWindows() ? */"ftd2xx", FTD2XX.class));
 
     public static class FT_STATUS {
 

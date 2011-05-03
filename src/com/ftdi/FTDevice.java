@@ -5,6 +5,8 @@
 package com.ftdi;
 
 import com.sun.jna.ptr.IntByReference;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +30,7 @@ public class FTDevice {
         this.ftHandle = ftHandle;
     }
 
-    public static FTDevice[] getDevices() throws FTD2XXException {
+    public static List<FTDevice> getDevices() throws FTD2XXException {
         IntByReference devNum = new IntByReference();
 
         int ftStatus = ftd2xx.FT_CreateDeviceInfoList(devNum);
@@ -38,7 +40,7 @@ public class FTDevice {
         Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
                 "Found devs:{0}", devNum.getValue());
 
-        FTDevice[] devs = new FTDevice[devNum.getValue()];
+        ArrayList<FTDevice> devs = new ArrayList<FTDevice>(devNum.getValue());
 
         IntByReference flag = new IntByReference();
         IntByReference devType = new IntByReference();
@@ -53,8 +55,9 @@ public class FTDevice {
             if (!(ftStatus == FTD2XX.FT_STATUS.FT_OK)) {
                 throw new FTD2XXException(ftStatus);
             }
-            devs[i] = new FTDevice(devType.getValue(), devID.getValue(),
-                    locID.getValue(), devSerNum, devDesc, ftHandle.getValue());
+            
+            devs.add(new FTDevice(devType.getValue(), devID.getValue(),
+                    locID.getValue(), devSerNum, devDesc, ftHandle.getValue()));
         }
         return devs;
     }
