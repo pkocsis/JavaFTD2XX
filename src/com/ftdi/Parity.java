@@ -23,34 +23,19 @@
  */
 package com.ftdi;
 
-import java.io.IOException;
-
 /**
- *
+ * Parity (see FT_SetDataCharacteristics
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
-public class FTD2XXException extends IOException {
+public enum Parity {
 
-    public FTD2XXException(FT_STATUS ftStatus) {
-        super("D2XX error, ftStatus:" + ftStatus);
-    }
+    FT_PARITY_NONE,
+    FT_PARITY_ODD,
+    FT_PARITY_EVEN,
+    FT_PARITY_MARK,
+    FT_PARITY_SPACE;
 
-    public FTD2XXException(int ftStatus) {
-        this(FT_STATUS.values()[ftStatus]);
-    }
-
-    public FTD2XXException(Throwable cause) {
-        super(cause);
-    }
-
-    public FTD2XXException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public FTD2XXException(String message) {
-        super(message);
-    }
-
-    public FTD2XXException() {
+    int constant() {
+        return this.ordinal();
     }
 }

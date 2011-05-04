@@ -23,34 +23,22 @@
  */
 package com.ftdi;
 
-import java.io.IOException;
-
 /**
  *
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
-public class FTD2XXException extends IOException {
+public enum StopBits {
+    
+    FT_STOP_BITS_1(0),
+    FT_STOP_BITS_2(2);
+    
+    private final int constant;
 
-    public FTD2XXException(FT_STATUS ftStatus) {
-        super("D2XX error, ftStatus:" + ftStatus);
+    private StopBits(int constant) {
+        this.constant = constant;
     }
-
-    public FTD2XXException(int ftStatus) {
-        this(FT_STATUS.values()[ftStatus]);
-    }
-
-    public FTD2XXException(Throwable cause) {
-        super(cause);
-    }
-
-    public FTD2XXException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public FTD2XXException(String message) {
-        super(message);
-    }
-
-    public FTD2XXException() {
+        
+    int constant(){
+        return this.constant;
     }
 }

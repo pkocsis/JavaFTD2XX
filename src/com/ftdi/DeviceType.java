@@ -23,34 +23,23 @@
  */
 package com.ftdi;
 
-import java.io.IOException;
-
 /**
- *
+ * FT_DEVICE (DWORD)
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
-public class FTD2XXException extends IOException {
+public enum DeviceType {
 
-    public FTD2XXException(FT_STATUS ftStatus) {
-        super("D2XX error, ftStatus:" + ftStatus);
-    }
-
-    public FTD2XXException(int ftStatus) {
-        this(FT_STATUS.values()[ftStatus]);
-    }
-
-    public FTD2XXException(Throwable cause) {
-        super(cause);
-    }
-
-    public FTD2XXException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public FTD2XXException(String message) {
-        super(message);
-    }
-
-    public FTD2XXException() {
+    FT_DEVICE_232BM,
+    FT_DEVICE_232AM,
+    FT_DEVICE_100AX,
+    FT_DEVICE_UNKNOWN,
+    FT_DEVICE_2232C,
+    FT_DEVICE_232R,
+    FT_DEVICE_2232H,
+    FT_DEVICE_4232H,
+    FT_DEVICE_232H;
+    
+    int constant(){
+        return this.ordinal();
     }
 }

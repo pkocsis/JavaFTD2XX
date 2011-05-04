@@ -23,34 +23,21 @@
  */
 package com.ftdi;
 
-import java.io.IOException;
-
 /**
- *
+ * Word Length (see FT_SetDataCharacteristics)
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
-public class FTD2XXException extends IOException {
+public enum WordLength {
 
-    public FTD2XXException(FT_STATUS ftStatus) {
-        super("D2XX error, ftStatus:" + ftStatus);
+    FT_BITS_8(8),
+    FT_BITS_7(7);
+    private final int constant;
+
+    private WordLength(int constant) {
+        this.constant = constant;
     }
 
-    public FTD2XXException(int ftStatus) {
-        this(FT_STATUS.values()[ftStatus]);
-    }
-
-    public FTD2XXException(Throwable cause) {
-        super(cause);
-    }
-
-    public FTD2XXException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public FTD2XXException(String message) {
-        super(message);
-    }
-
-    public FTD2XXException() {
+    int constant() {
+        return this.constant;
     }
 }

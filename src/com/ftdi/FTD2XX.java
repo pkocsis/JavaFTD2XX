@@ -1,10 +1,30 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * The MIT License
+ *
+ * Copyright 2011 Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package com.ftdi;
 
 import com.sun.jna.Library;
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
@@ -14,94 +34,20 @@ import com.sun.jna.ptr.ShortByReference;
 
 /**
  *
- * @author Péter Kocsis
+ * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
-public interface FTD2XX extends Library {
+interface FTD2XX extends Library {
 
     final FTD2XX INSTANCE = (FTD2XX) Native.synchronizedLibrary(
-            (FTD2XX) Native.loadLibrary(
-            /*(Platform.isWindows() ? */"ftd2xx", FTD2XX.class));
-
-    public static enum FT_STATUS {
-
-        FT_OK,
-        FT_INVALID_HANDLE,
-        FT_DEVICE_NOT_FOUND,
-        FT_DEVICE_NOT_OPENED,
-        FT_IO_ERROR,
-        FT_INSUFFICIENT_RESOURCES,
-        FT_INVALID_PARAMETER,
-        FT_INVALID_BAUD_RATE,
-        FT_DEVICE_NOT_OPENED_FOR_ERASE,
-        FT_DEVICE_NOT_OPENED_FOR_WRITE,
-        FT_FAILED_TO_WRITE_DEVICE,
-        FT_EEPROM_READ_FAILED,
-        FT_EEPROM_WRITE_FAILED,
-        FT_EEPROM_ERASE_FAILED,
-        FT_EEPROM_NOT_PRESENT,
-        FT_EEPROM_NOT_PROGRAMMED,
-        FT_INVALID_ARGS,
-        FT_NOT_SUPPORTED,
-        FT_OTHER_ERROR;
-    }
-
-    public static enum FT_DEVICE {
-
-        FT_DEVICE_232BM,
-        FT_DEVICE_232AM,
-        FT_DEVICE_100AX,
-        FT_DEVICE_UNKNOWN,
-        FT_DEVICE_2232C,
-        FT_DEVICE_232R,
-        FT_DEVICE_2232H,
-        FT_DEVICE_4232H,
-        FT_DEVICE_232H;
-    }
-
-    public static class Flags {
-
-        public final static int FT_LIST_NUMBER_ONLY = 0x80000,
-                FT_LIST_BY_INDEX = 0x40000000,
-                FT_LIST_ALL = 0x20000000;
-        public final static int FT_OPEN_BY_SERIAL_NUMBER = 1,
-                FT_OPEN_BY_DESCRIPTION = 2,
-                FT_OPEN_BY_LOCATION = 4;
-    }
-
-    public static class WordLenght {
-
-        public final static int FT_BITS_8 = 8,
-                FT_BITS_7 = 7;
-    }
-
-    public static class StopBits {
-
-        public final static int FT_STOP_BITS_1 = 0,
-                FT_STOP_BITS_2 = 2;
-    }
-
-    public static class Parity {
-
-        public final static int FT_PARITY_NONE = 0,
-                FT_PARITY_ODD = 1,
-                FT_PARITY_EVEN = 2,
-                FT_PARITY_MARK = 3,
-                FT_PARITY_SPACE = 4;
-    }
-
-    public static class FlowControl {
-
-        public final static int FT_FLOW_NONE = 0x0000,
-                FT_FLOW_RTS_CTS = 0x0100,
-                FT_FLOW_DTR_DSR = 0x0200,
-                FT_FLOW_XON_XOFF = 0x0400;
-    }
-
-    public static class Purge {
-
-        public final static int FT_PURGE_RX = 1,
-                FT_PURGE_TX = 2;
-    }
+            (FTD2XX) Native.loadLibrary("ftd2xx", FTD2XX.class));
+    
+    public final static int FT_FLAGS_OPENED = 0x00000001;
+    public final static int FT_LIST_NUMBER_ONLY = 0x80000,
+            FT_LIST_BY_INDEX = 0x40000000,
+            FT_LIST_ALL = 0x20000000;
+    public final static int FT_OPEN_BY_SERIAL_NUMBER = 1,
+            FT_OPEN_BY_DESCRIPTION = 2,
+            FT_OPEN_BY_LOCATION = 4;
 
     public static class NotificationEvents {
 
@@ -126,32 +72,15 @@ public interface FTD2XX extends Library {
                 BI = 0x10;
     }
 
-    public static class BitModes {
-
-        public final static int FT_BITMODE_RESET = 0x00,
-                FT_BITMODE_ASYNC_BITBANG = 0x01,
-                FT_BITMODE_MPSSE = 0x02,
-                FT_BITMODE_SYNC_BITBANG = 0x04,
-                FT_BITMODE_MCU_HOST = 0x08,
-                FT_BITMODE_FAST_SERIAL = 0x10,
-                FT_BITMODE_CBUS_BITBANG = 0x20,
-                FT_BITMODE_SYNC_FIFO = 0x40;
-    }
-
     public static class FT_DEVICE_LIST_INFO_NODE extends Structure {
 
         public int Flags;
         public int Type;
         public int ID;
         public int LocId;
-        public byte[] SerialNumber = new byte[16];
-        public byte[] Description = new byte[64];
+        public Memory SerialNumber = new Memory(16);
+        public Memory Description = new Memory(64);
         public int ftHandle;
-    }
-
-    public static class FT_FLAGS {
-
-        public final static int FT_FLAGS_OPENED = 0x00000001;
     }
 
     public static class FT_PROGRAM_DATA extends Structure {
@@ -765,8 +694,8 @@ public interface FTD2XX extends Library {
      */
     int FT_GetDeviceInfoDetail(int dwIndex, IntByReference lpdwFlags,
             IntByReference lpdwType, IntByReference lpdwID,
-            IntByReference lpdwLocId, String pcSerialNumber,
-            String pcDescription, IntByReference ftHandle);
+            IntByReference lpdwLocId, Pointer pcSerialNumber,
+            Pointer pcDescription, IntByReference ftHandle);
 
     /**
      * Gets information concerning the devices currently connected.  This 
@@ -834,7 +763,7 @@ public interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_Read(int ftHandle, byte[] lpBuffer, int dwBytesToRead,
+    int FT_Read(int ftHandle, Pointer lpBuffer, int dwBytesToRead,
             IntByReference lpdwBytesReturned);
 
     /**
@@ -848,7 +777,7 @@ public interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_Write(int ftHandle, byte[] lpBuffer, int dwBytesToWrite,
+    int FT_Write(int ftHandle, Pointer lpBuffer, int dwBytesToWrite,
             IntByReference lpdwBytesWritten);
 
     /**
@@ -978,7 +907,7 @@ public interface FTD2XX extends Library {
      * FT error code.
      */
     int FT_GetDeviceInfo(int ftHandle, IntByReference pftType,
-            IntByReference lpdwID, String pcSerialNumber, String pcDescription,
+            IntByReference lpdwID, Pointer pcSerialNumber, Pointer pcDescription,
             Pointer pvDummy);
 
     /**

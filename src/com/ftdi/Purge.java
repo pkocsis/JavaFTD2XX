@@ -23,34 +23,21 @@
  */
 package com.ftdi;
 
-import java.io.IOException;
-
 /**
- *
+ * Purge RX and TX Buffers (see FT_Purge)
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
-public class FTD2XXException extends IOException {
+public enum Purge {
 
-    public FTD2XXException(FT_STATUS ftStatus) {
-        super("D2XX error, ftStatus:" + ftStatus);
+    FT_PURGE_RX(1),
+    FT_PURGE_TX(0);
+    private final int constant;
+
+    private Purge(int constant) {
+        this.constant = constant;
     }
 
-    public FTD2XXException(int ftStatus) {
-        this(FT_STATUS.values()[ftStatus]);
-    }
-
-    public FTD2XXException(Throwable cause) {
-        super(cause);
-    }
-
-    public FTD2XXException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public FTD2XXException(String message) {
-        super(message);
-    }
-
-    public FTD2XXException() {
+    int constant() {
+        return this.constant;
     }
 }
