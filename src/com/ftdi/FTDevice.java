@@ -179,6 +179,66 @@ public class FTDevice {
     }
 
     /**
+     * Set desired baud rate.
+     * @param baudRate The baud rate.
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void setBaudRate(long baudRate) throws FTD2XXException {
+        ensureFTStatus(ftd2xx.FT_SetBaudRate(ftHandle, (int) baudRate));
+    }
+
+    /**
+     * This function sets the data characteristics for the device
+     * @param wordLength Number of bits per word 
+     * @param stopBits Number of stop bits
+     * @param parity Parity
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void setDataCharacteristics(WordLength wordLength, StopBits stopBits,
+            Parity parity) throws FTD2XXException {
+        ensureFTStatus(ftd2xx.FT_SetDataCharacteristics(ftHandle,
+                (byte) wordLength.constant(), (byte) stopBits.constant(),
+                (byte) parity.constant()));
+    }
+
+    /**
+     * Set the read and write timeouts for the device.
+     * @param readTimeout Read timeout in milliseconds.
+     * @param writeTimeout Write timeout in milliseconds.
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void setTimeouts(long readTimeout, long writeTimeout)
+            throws FTD2XXException {
+        ensureFTStatus(ftd2xx.FT_SetTimeouts(ftHandle, (int) readTimeout,
+                (int) writeTimeout));
+    }
+    
+    /**
+     * Sets the flow control for the device.
+     * @param flowControl Flow control type.
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void setFlowControl(FlowControl flowControl) throws FTD2XXException{
+        ensureFTStatus(ftd2xx.FT_SetFlowControl(ftHandle, 
+                (short)flowControl.constant(), (byte)0, (byte)0));
+    }
+    
+    /**
+     * Sets the flow control for the device.
+     * @param flowControl Flow control type.
+     * @param uXon Character used to signal Xon. Only used if flow control is 
+     * FT_FLOW_XON_XOFF
+     * @param uXoff Character used to signal Xoff.  Only used if flow control is 
+     * FT_FLOW_XON_XOFF
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void setFlowControl(FlowControl flowControl, byte uXon, byte uXoff) 
+            throws FTD2XXException{
+        ensureFTStatus(ftd2xx.FT_SetFlowControl(ftHandle, 
+                (short)flowControl.constant(), uXon, uXoff));
+    }
+
+    /**
      * Write bytes to device.
      * @param bytes Byte array to send
      * @param offset Start index
