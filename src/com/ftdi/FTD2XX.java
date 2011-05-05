@@ -26,11 +26,16 @@ package com.ftdi;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.ShortByReference;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  *
@@ -38,9 +43,81 @@ import com.sun.jna.ptr.ShortByReference;
  */
 interface FTD2XX extends Library {
 
-    final FTD2XX INSTANCE = (FTD2XX) Native.synchronizedLibrary(
-            (FTD2XX) Native.loadLibrary("ftd2xx", FTD2XX.class));
+    static class Loader {
+
+        private Loader() {
+        }
+
+        static File getNative() {
+            InputStream in = null;
+            FileOutputStream fos = null;
+            File fileOut = null;
+            System.setProperty("jna.library.path",
+                    System.getProperty("java.io.tmpdir"));
+            if (Platform.isMac()) {
+                in = Loader.class.getResourceAsStream(
+                        "/natives/libftd2xx.dylib");
+            } else if (Platform.is64Bit()) {
+                if (Platform.isLinux()) {
+                    in = Loader.class.getResourceAsStream(
+                            "/natives/x86_64/libftd2xx.so");
+                } else if (Platform.isWindows()) {
+                    in = Loader.class.getResourceAsStream(
+                            "/natives/x86_64/ftd2xx.dll");
+                }
+            } else {
+                if (Platform.isLinux()) {
+                    in = Loader.class.getResourceAsStream(
+                            "/natives/i386/libftd2xx.so");
+                } else if (Platform.isWindows()) {
+                    in = Loader.class.getResourceAsStream(
+                            "/natives/i386/ftd2xx.dll");
+                }
+            }
+
+            if (in != null) {
+                try {
+                    fileOut = File.createTempFile(
+                            "ftd2xx", Platform.isWindows() ? ".dll" : 
+                            Platform.isLinux() ? ".so" : ".dylib");
+                    fileOut.deleteOnExit();
+
+                    fos = new FileOutputStream(fileOut);
+
+                    int count;
+                    byte[] buf = new byte[1024];
+
+                    while ((count = in.read(buf, 0, buf.length)) > 0) {
+                        fos.write(buf, 0, count);
+                    }
+
+                } catch (IOException ex) {
+                    throw new Error("Failed to create temporary file "
+                            + "for d2xx library: " + ex);
+                } finally {
+                    try {
+                        in.close();
+                    } catch (IOException ex) {
+                    }
+
+                    if (fos != null) {
+                        try {
+                            fos.close();
+                        } catch (IOException ex) {
+                        }
+                    }
+                    return fileOut;
+                }
+            } else {
+                throw new Error("Not supported OS");
+            }
+        }
+        
+    }
     
+    final FTD2XX INSTANCE = (FTD2XX) Native.synchronizedLibrary(
+            (FTD2XX) Native.loadLibrary(Loader.getNative().getName(),
+            FTD2XX.class));
     public final static int FT_FLAGS_OPENED = 0x00000001;
     public final static int FT_LIST_NUMBER_ONLY = 0x80000,
             FT_LIST_BY_INDEX = 0x40000000,
