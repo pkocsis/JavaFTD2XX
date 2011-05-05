@@ -71,4 +71,10 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="-post-jar">
+        <jar jarfile="${dist.dir}/FTD2XXJ-full.jar">
+            <zipfileset src="${dist.jar}" excludes="META-INF/*" />
+            <zipfileset src="lib/jna.jar" excludes="META-INF/*" />
+        </jar>
+    </target>
 </project>

@@ -23,36 +23,64 @@
  */
 package com.ftdi;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
+
 /**
- * Bit Modes (see FT_SetBitMode)
+ * Modem and line statuses of device.
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
-public enum BitModes {
+public enum DeviceStatus {
 
-    FT_BITMODE_RESET(0x00),
-    FT_BITMODE_ASYNC_BITBANG(0x01),
-    FT_BITMODE_MPSSE(0x02),
-    FT_BITMODE_SYNC_BITBANG(0x04),
-    FT_BITMODE_MCU_HOST(0x08),
-    FT_BITMODE_FAST_SERIAL(0x10),
-    FT_BITMODE_CBUS_BITBANG(0x20),
-    FT_BITMODE_SYNC_FIFO(0x40);
+    /**
+     * Clear To Send
+     */
+    CTS(0x10),
+    /**
+     * Data Set Ready
+     */
+    DSR(0x20),
+    /**
+     * Ring Indicator
+     */
+    RI(0x40),
+    /**
+     * Data Carrier Detect
+     */
+    DCD(0x80),
+    /**
+     * Overrun Error
+     */
+    OE(0x02),
+    /**
+     * Parity Error
+     */
+    PE(0x04),
+    /**
+     * Framing Error
+     */
+    FE(0x08),
+    /**
+     * Break Interrupt
+     */
+    BI(0x10);
     private final int constant;
 
-    private BitModes(int constant) {
+    private DeviceStatus(int constant) {
         this.constant = constant;
     }
 
     int constant() {
         return this.constant;
     }
-
-    static BitModes parse(int val) {
-        for (BitModes curr : BitModes.values()) {
-            if (curr.constant() == val) {
-                return curr;
+    
+    static EnumSet<DeviceStatus> parseToEnumset(int val){
+        ArrayList<DeviceStatus> enu = new ArrayList<DeviceStatus>();
+        for (DeviceStatus curr : DeviceStatus.values()) {
+            if((curr.constant() & val) != 0){
+                enu.add(curr);
             }
         }
-        return null;
+        return EnumSet.copyOf(enu);
     }
 }

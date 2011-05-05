@@ -56,22 +56,6 @@ interface FTD2XX extends Library {
                 FT_EVENT_LINE_STATUS = 4;
     }
 
-    public static class ModemStatus {
-
-        public final static int CTS = 0x10,
-                DSR = 0x20,
-                RI = 0x40,
-                DCD = 0x80;
-    }
-
-    public static class LineStatus {
-
-        public final static int OE = 0x02,
-                PE = 0x04,
-                FE = 0x08,
-                BI = 0x10;
-    }
-
     public static class FT_DEVICE_LIST_INFO_NODE extends Structure {
 
         public int Flags;
@@ -1217,7 +1201,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_GetLatencyTimer(int ftHandle, byte pucTimer);
+    int FT_GetLatencyTimer(int ftHandle, ByteByReference pucTimer);
 
     /**
      * Enables different chip modes. 

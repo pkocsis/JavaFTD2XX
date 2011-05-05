@@ -24,8 +24,10 @@
 package com.ftdi;
 
 import com.sun.jna.Memory;
+import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -212,17 +214,17 @@ public class FTDevice {
         ensureFTStatus(ftd2xx.FT_SetTimeouts(ftHandle, (int) readTimeout,
                 (int) writeTimeout));
     }
-    
+
     /**
      * Sets the flow control for the device.
      * @param flowControl Flow control type.
      * @throws FTD2XXException If something goes wrong.
      */
-    public void setFlowControl(FlowControl flowControl) throws FTD2XXException{
-        ensureFTStatus(ftd2xx.FT_SetFlowControl(ftHandle, 
-                (short)flowControl.constant(), (byte)0, (byte)0));
+    public void setFlowControl(FlowControl flowControl) throws FTD2XXException {
+        ensureFTStatus(ftd2xx.FT_SetFlowControl(ftHandle,
+                (short) flowControl.constant(), (byte) 0, (byte) 0));
     }
-    
+
     /**
      * Sets the flow control for the device.
      * @param flowControl Flow control type.
@@ -232,10 +234,141 @@ public class FTDevice {
      * FT_FLOW_XON_XOFF
      * @throws FTD2XXException If something goes wrong.
      */
-    public void setFlowControl(FlowControl flowControl, byte uXon, byte uXoff) 
-            throws FTD2XXException{
-        ensureFTStatus(ftd2xx.FT_SetFlowControl(ftHandle, 
-                (short)flowControl.constant(), uXon, uXoff));
+    public void setFlowControl(FlowControl flowControl, byte uXon, byte uXoff)
+            throws FTD2XXException {
+        ensureFTStatus(ftd2xx.FT_SetFlowControl(ftHandle,
+                (short) flowControl.constant(), uXon, uXoff));
+    }
+
+    /**
+     * Set the Data Terminal Ready (DTR) control signal.
+     * @param status Status of DTR signal.
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void setDtr(boolean status) throws FTD2XXException {
+        if (status) {
+            ensureFTStatus(ftd2xx.FT_SetDtr(ftHandle));
+        } else {
+            ensureFTStatus(ftd2xx.FT_ClrDtr(ftHandle));
+        }
+    }
+
+    /**
+     * Set the Request To Send (RTS) control signal
+     * @param status Status of RTS signal.
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void setRts(boolean status) throws FTD2XXException {
+        if (status) {
+            ensureFTStatus(ftd2xx.FT_SetRts(ftHandle));
+        } else {
+            ensureFTStatus(ftd2xx.FT_ClrRts(ftHandle));
+        }
+    }
+
+    /**
+     * Gets the modem status and line status from the device.
+     * @return Modem and line statuses
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public EnumSet<DeviceStatus> getDeviceStatus() throws FTD2XXException {
+        IntByReference modstat = new IntByReference();
+        ensureFTStatus(ftd2xx.FT_GetModemStatus(ftHandle, modstat));
+        return DeviceStatus.parseToEnumset(modstat.getValue());
+    }
+
+    /**
+     * Gets the number of bytes in the receive queue.
+     * @return The number of bytes in the receive queue
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public int getQueueStatus() throws FTD2XXException {
+        IntByReference reference = new IntByReference();
+        ensureFTStatus(ftd2xx.FT_GetQueueStatus(ftHandle, reference));
+        return reference.getValue();
+    }
+
+    /**
+     * Send a reset command to the device.
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void resetDevice() throws FTD2XXException {
+        ensureFTStatus(ftd2xx.FT_ResetDevice(ftHandle));
+    }
+
+    /**
+     * Set the latency timer value.
+     * @param timer Required value, in milliseconds, of latency timer. 
+     * Valid range is 2 – 255.
+     * @param timer Latency timer value.
+     * @throws FTD2XXException If something goes wrong.
+     * @throws IllegalArgumentException If timer was not in range 2 - 255.
+     */
+    public void setLatencyTimer(short timer) throws FTD2XXException,
+            IllegalArgumentException {
+        if (!((timer > 2) && (timer < 255))) {
+            throw new IllegalArgumentException("Valid range is 2 – 255!");
+        }
+        ensureFTStatus(ftd2xx.FT_SetLatencyTimer(ftHandle, (byte) timer));
+    }
+
+    /**
+     * Get the current value of the latency timer.
+     * @return latency timer value.
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public short getLatencyTimer() throws FTD2XXException {
+        ByteByReference byReference = new ByteByReference();
+        ensureFTStatus(ftd2xx.FT_GetLatencyTimer(ftHandle, byReference));
+        return (short) ((short) byReference.getValue() & 0xFF);
+    }
+
+    /**
+     * Enables different chip modes.
+     * @param ucMask Required value for bit mode mask.  This sets up which bits
+     * are  inputs and outputs.  A bit value of 0 sets the corresponding pin to 
+     * an input, a bit value of 1 sets the corresponding pin to an output. In 
+     * the case of CBUS Bit Bang, the upper nibble of this value controls which 
+     * pins are inputs and outputs, while the lower nibble controls which of the
+     * outputs are high and low.
+     * @param bitMode Mode value.
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void setBitMode(byte ucMask, BitModes bitMode)
+            throws FTD2XXException {
+        ensureFTStatus(ftd2xx.FT_SetBitmode(ftHandle, ucMask,
+                (byte) bitMode.constant()));
+    }
+    
+    /**
+     * Gets the instantaneous value of the data bus.
+     * @return instantaneous data bus value
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public BitModes getBitMode() throws FTD2XXException {
+        ByteByReference byt = new ByteByReference();
+        ensureFTStatus(ftd2xx.FT_GetBitmode(ftHandle, byt));
+        return BitModes.parse(byt.getValue());
+    }
+    
+    /**
+     * Set the USB request transfer size.
+     * This function can be used to change the transfer sizes from the default 
+     * transfer size of 4096 bytes to better suit the application requirements.
+     * Transfer sizes must be set to a multiple of 64 bytes between 64 bytes and
+     * 64k bytes.
+     * When FT_SetUSBParameters is called, the change comes into effect
+     * immediately and any data that was held in the driver at the time of the
+     * change is lost. Note that, at present, only dwInTransferSize is 
+     * supported.
+     * @param inTransferSize Transfer size for USB IN request
+     * @param outTransferSize Transfer size for USB OUT request
+     * @throws FTD2XXException 
+     */
+    public void setUSBParameters(int inTransferSize, int outTransferSize)
+            throws FTD2XXException {
+        ensureFTStatus(ftd2xx.FT_SetUSBParameters(ftHandle, inTransferSize, 
+                outTransferSize));
     }
 
     /**
