@@ -1328,4 +1328,6 @@ interface FTD2XX extends Library {
      */
     int FT_SetUSBParameters(int ftHandle, int dwInTransferSize,
             int dwOutTransferSize);
+    
+    
 }

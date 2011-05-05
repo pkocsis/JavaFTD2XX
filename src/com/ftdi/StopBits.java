@@ -24,13 +24,13 @@
 package com.ftdi;
 
 /**
- *
+ * Number of stop bits
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
 public enum StopBits {
     
-    FT_STOP_BITS_1(0),
-    FT_STOP_BITS_2(2);
+    STOP_BITS_1(0),
+    STOP_BITS_2(2);
     
     private final int constant;
 

@@ -24,15 +24,15 @@
 package com.ftdi;
 
 /**
- * Flow Control (see FT_SetFlowControl)
+ * Flow Control
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
 public enum FlowControl {
 
-    FT_FLOW_NONE(0x0000),
-    FT_FLOW_RTS_CTS(0x0100),
-    FT_FLOW_DTR_DSR(0x0200),
-    FT_FLOW_XON_XOFF(0x0400);
+    FLOW_NONE(0x0000),
+    FLOW_RTS_CTS(0x0100),
+    FLOW_DTR_DSR(0x0200),
+    FLOW_XON_XOFF(0x0400);
     private final int constant;
 
     private FlowControl(int constant) {

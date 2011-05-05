@@ -24,16 +24,16 @@
 package com.ftdi;
 
 /**
- * Parity (see FT_SetDataCharacteristics
+ * Parity
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
 public enum Parity {
 
-    FT_PARITY_NONE,
-    FT_PARITY_ODD,
-    FT_PARITY_EVEN,
-    FT_PARITY_MARK,
-    FT_PARITY_SPACE;
+    PARITY_NONE,
+    PARITY_ODD,
+    PARITY_EVEN,
+    PARITY_MARK,
+    PARITY_SPACE;
 
     int constant() {
         return this.ordinal();

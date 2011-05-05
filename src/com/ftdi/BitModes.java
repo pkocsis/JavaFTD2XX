@@ -24,19 +24,19 @@
 package com.ftdi;
 
 /**
- * Bit Modes (see FT_SetBitMode)
+ * Bit Modes
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
 public enum BitModes {
 
-    FT_BITMODE_RESET(0x00),
-    FT_BITMODE_ASYNC_BITBANG(0x01),
-    FT_BITMODE_MPSSE(0x02),
-    FT_BITMODE_SYNC_BITBANG(0x04),
-    FT_BITMODE_MCU_HOST(0x08),
-    FT_BITMODE_FAST_SERIAL(0x10),
-    FT_BITMODE_CBUS_BITBANG(0x20),
-    FT_BITMODE_SYNC_FIFO(0x40);
+    BITMODE_RESET(0x00),
+    BITMODE_ASYNC_BITBANG(0x01),
+    BITMODE_MPSSE(0x02),
+    BITMODE_SYNC_BITBANG(0x04),
+    BITMODE_MCU_HOST(0x08),
+    BITMODE_FAST_SERIAL(0x10),
+    BITMODE_CBUS_BITBANG(0x20),
+    BITMODE_SYNC_FIFO(0x40);
     private final int constant;
 
     private BitModes(int constant) {

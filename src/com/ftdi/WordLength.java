@@ -24,13 +24,13 @@
 package com.ftdi;
 
 /**
- * Word Length (see FT_SetDataCharacteristics)
+ * Word Length
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
 public enum WordLength {
 
-    FT_BITS_8(8),
-    FT_BITS_7(7);
+    BITS_8(8),
+    BITS_7(7);
     private final int constant;
 
     private WordLength(int constant) {

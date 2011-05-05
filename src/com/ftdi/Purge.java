@@ -24,13 +24,13 @@
 package com.ftdi;
 
 /**
- * Purge RX and TX Buffers (see FT_Purge)
+ * Purge RX and TX Buffers
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
 public enum Purge {
 
-    FT_PURGE_RX(1),
-    FT_PURGE_TX(2);
+    PURGE_RX(1),
+    PURGE_TX(2);
     private final int constant;
 
     private Purge(int constant) {

@@ -24,20 +24,20 @@
 package com.ftdi;
 
 /**
- * FT_DEVICE (DWORD)
+ * Chip type
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
 public enum DeviceType {
 
-    FT_DEVICE_232BM,
-    FT_DEVICE_232AM,
-    FT_DEVICE_100AX,
-    FT_DEVICE_UNKNOWN,
-    FT_DEVICE_2232C,
-    FT_DEVICE_232R,
-    FT_DEVICE_2232H,
-    FT_DEVICE_4232H,
-    FT_DEVICE_232H;
+    DEVICE_232BM,
+    DEVICE_232AM,
+    DEVICE_100AX,
+    DEVICE_UNKNOWN,
+    DEVICE_2232C,
+    DEVICE_232R,
+    DEVICE_2232H,
+    DEVICE_4232H,
+    DEVICE_232H;
     
     int constant(){
         return this.ordinal();
