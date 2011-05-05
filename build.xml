@@ -72,7 +72,7 @@
 
     -->
     <target name="-post-jar">
-        <jar jarfile="${dist.dir}/FTD2XXJ-full.jar">
+        <jar jarfile="${dist.dir}/JavaFTD2XX-full.jar">
             <zipfileset src="${dist.jar}" excludes="META-INF/*" />
             <zipfileset src="lib/jna.jar" excludes="META-INF/*" />
             <fileset dir="native/" />

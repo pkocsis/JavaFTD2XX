@@ -23,21 +23,51 @@
  */
 package com.ftdi;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
- * Purge RX and TX Buffers (see FT_Purge)
+ *
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
-public enum Purge {
+class FTDeviceInputStream extends InputStream{
 
-    FT_PURGE_RX(1),
-    FT_PURGE_TX(2);
-    private final int constant;
+    private final FTDevice device;
 
-    private Purge(int constant) {
-        this.constant = constant;
+    FTDeviceInputStream(FTDevice device) {
+        this.device = device;
+    }
+    
+    @Override
+    public int read() throws IOException {
+        return device.read();
     }
 
-    int constant() {
-        return this.constant;
+    @Override
+    public int available() throws IOException {
+        return device.getQueueStatus();
     }
+
+    @Override
+    public void close() throws IOException {
+        device.close();
+    }
+
+    @Override
+    public boolean markSupported() {
+        return false;
+    }
+
+    @Override
+    public int read(byte[] b) throws IOException {
+        return device.read(b);
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        return device.write(b, off, len);
+    }
+    
+    
+    
 }

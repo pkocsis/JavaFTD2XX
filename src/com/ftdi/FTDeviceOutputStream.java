@@ -23,21 +23,39 @@
  */
 package com.ftdi;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 /**
- * Purge RX and TX Buffers (see FT_Purge)
+ *
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
-public enum Purge {
+class FTDeviceOutputStream extends OutputStream{
 
-    FT_PURGE_RX(1),
-    FT_PURGE_TX(2);
-    private final int constant;
+    private final FTDevice device;
 
-    private Purge(int constant) {
-        this.constant = constant;
+    FTDeviceOutputStream(FTDevice device) {
+        this.device = device;
+    }
+    
+    @Override
+    public void write(int b) throws IOException {
+        device.write(b);
     }
 
-    int constant() {
-        return this.constant;
+    @Override
+    public void close() throws IOException {
+        device.close();
     }
+
+    @Override
+    public void write(byte[] b) throws IOException {
+        device.write(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+        device.write(b, off, len);
+    }
+    
 }

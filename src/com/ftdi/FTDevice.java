@@ -26,6 +26,8 @@ package com.ftdi;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -43,6 +45,8 @@ public class FTDevice {
     private final DeviceType devType;
     private int ftHandle;
     private final String devSerialNumber, devDescription;
+    private FTDeviceInputStream fTDeviceInputStream = null;
+    private FTDeviceOutputStream fTDeviceOutputStream = null;
 
     private FTDevice(DeviceType devType, int devID, int devLocationID,
             String devSerialNumber, String devDescription, int ftHandle) {
@@ -289,6 +293,24 @@ public class FTDevice {
     }
 
     /**
+     * Purge receive or transmit buffers in the device.
+     * @param rxBuffer Will rxBuffer be purged?
+     * @param txBuffer Will txBuffer be purged?
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void purgeBuffer(boolean rxBuffer, boolean txBuffer)
+            throws FTD2XXException {
+        int mask = 0;
+        if (rxBuffer) {
+            mask |= Purge.FT_PURGE_RX.constant();
+        }
+        if (txBuffer) {
+            mask |= Purge.FT_PURGE_TX.constant();
+        }
+        ensureFTStatus(ftd2xx.FT_Purge(ftHandle,mask));
+    }
+
+    /**
      * Send a reset command to the device.
      * @throws FTD2XXException If something goes wrong.
      */
@@ -339,7 +361,7 @@ public class FTDevice {
         ensureFTStatus(ftd2xx.FT_SetBitmode(ftHandle, ucMask,
                 (byte) bitMode.constant()));
     }
-    
+
     /**
      * Gets the instantaneous value of the data bus.
      * @return instantaneous data bus value
@@ -350,7 +372,7 @@ public class FTDevice {
         ensureFTStatus(ftd2xx.FT_GetBitmode(ftHandle, byt));
         return BitModes.parse(byt.getValue());
     }
-    
+
     /**
      * Set the USB request transfer size.
      * This function can be used to change the transfer sizes from the default 
@@ -367,7 +389,7 @@ public class FTDevice {
      */
     public void setUSBParameters(int inTransferSize, int outTransferSize)
             throws FTD2XXException {
-        ensureFTStatus(ftd2xx.FT_SetUSBParameters(ftHandle, inTransferSize, 
+        ensureFTStatus(ftd2xx.FT_SetUSBParameters(ftHandle, inTransferSize,
                 outTransferSize));
     }
 
@@ -381,7 +403,7 @@ public class FTDevice {
      */
     public int write(byte[] bytes, int offset, int length)
             throws FTD2XXException {
-        Memory memory = new Memory(0);
+        Memory memory = new Memory(length);
         memory.write(0, bytes, offset, length);
         IntByReference wrote = new IntByReference();
 
@@ -450,5 +472,19 @@ public class FTDevice {
         byte[] c = new byte[1];
         int ret = read(c);
         return (ret == 1) ? ((int) c[0] & 0xFF) : -1;
+    }
+
+    public InputStream getInputStream() {
+        if (fTDeviceInputStream == null) {
+            fTDeviceInputStream = new FTDeviceInputStream(this);
+        }
+        return fTDeviceInputStream;
+    }
+
+    public OutputStream getOutputStream() {
+        if (fTDeviceOutputStream == null) {
+            fTDeviceOutputStream = new FTDeviceOutputStream(this);
+        }
+        return fTDeviceOutputStream;
     }
 }

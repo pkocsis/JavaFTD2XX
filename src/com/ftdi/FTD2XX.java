@@ -54,6 +54,7 @@ interface FTD2XX extends Library {
             File fileOut = null;
             System.setProperty("jna.library.path",
                     System.getProperty("java.io.tmpdir"));
+            
             if (Platform.isMac()) {
                 in = Loader.class.getResourceAsStream(
                         "/natives/libftd2xx.dylib");
