@@ -26,7 +26,7 @@ package com.ftdi;
 import java.io.IOException;
 
 /**
- *
+ * If something bad thing happen in native file.
  * @author Peter Kocsis <p. kocsis. 2. 7182 at gmail.com>
  */
 public class FTD2XXException extends IOException {
