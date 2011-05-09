@@ -54,7 +54,7 @@ interface FTD2XX extends Library {
             File fileOut = null;
             System.setProperty("jna.library.path",
                     System.getProperty("java.io.tmpdir"));
-            
+
             if (Platform.isMac()) {
                 in = Loader.class.getResourceAsStream(
                         "/natives/libftd2xx.dylib");
@@ -79,8 +79,8 @@ interface FTD2XX extends Library {
             if (in != null) {
                 try {
                     fileOut = File.createTempFile(
-                            "ftd2xx", Platform.isWindows() ? ".dll" : 
-                            Platform.isLinux() ? ".so" : ".dylib");
+                            "ftd2xx", Platform.isWindows() ? ".dll"
+                            : Platform.isLinux() ? ".so" : ".dylib");
                     fileOut.deleteOnExit();
 
                     fos = new FileOutputStream(fileOut);
@@ -113,9 +113,7 @@ interface FTD2XX extends Library {
                 throw new Error("Not supported OS");
             }
         }
-        
     }
-    
     final FTD2XX INSTANCE = (FTD2XX) Native.synchronizedLibrary(
             (FTD2XX) Native.loadLibrary(Loader.getNative().getName(),
             FTD2XX.class));
@@ -153,11 +151,11 @@ interface FTD2XX extends Library {
         /**
          * Header - must be 0x0000000
          */
-        public int Signature1;
+        public int Signature1 = 0x0000000;
         /**
          * Header - must be 0xffffffff
          */
-        public int Signature2;
+        public int Signature2 = 0xffffffff;
         /**
          * // Header - FT_PROGRAM_DATA version
          * 0 = original (FT232B)
@@ -167,7 +165,7 @@ interface FTD2XX extends Library {
          * 4 = FT4232H extensions
          * 5 = FT232H extensions
          */
-        public int Version;
+        public int Version = 0x00000000;
         /**
          * 0x0403
          */
@@ -179,19 +177,19 @@ interface FTD2XX extends Library {
         /**
          * "FTDI"
          */
-        public String Manufacturer;
+        public Pointer Manufacturer = new Memory(32);
         /**
          * "FT"
          */
-        public String ManufacturerId;
+        public Pointer ManufacturerId = new Memory(16);
         /**
          * "USB HS Serial Converter"
          */
-        public String Description;
+        public Pointer Description = new Memory(64);
         /**
          * "FT000001" if fixed, or NULL
          */
-        public String SerialNumber;
+        public Pointer SerialNumber = new Memory(16);
         /**
          * 0 < MaxPower <= 500
          */
@@ -1234,7 +1232,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EE_UASizeWrite(int ftHandle, IntByReference lpdwSize);
+    int FT_EE_UASize(int ftHandle, IntByReference lpdwSize);
 
     /**
      * Read the contents of the EEPROM user area. 
@@ -1248,7 +1246,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EE_UARead(int ftHandle, byte[] pucData, int dwDataLen,
+    int FT_EE_UARead(int ftHandle, Pointer pucData, int dwDataLen,
             IntByReference lpdwBytesRead);
 
     /**
@@ -1260,7 +1258,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EE_UAWrite(int ftHandle, byte[] pucData, int dwDataLen);
+    int FT_EE_UAWrite(int ftHandle, Pointer pucData, int dwDataLen);
 
     /**
      * Set the latency timer value.  
@@ -1328,6 +1326,4 @@ interface FTD2XX extends Library {
      */
     int FT_SetUSBParameters(int ftHandle, int dwInTransferSize,
             int dwOutTransferSize);
-    
-    
 }

@@ -24,6 +24,7 @@
 package com.ftdi;
 
 import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import java.io.InputStream;
@@ -205,7 +206,7 @@ public class FTDevice {
         }
         return devs;
     }
-    
+
     /**
      * Get the connected FTDI devices.
      * @param serialNumber Filtering option, exact match need.
@@ -245,7 +246,7 @@ public class FTDevice {
         }
         return devs;
     }
-    
+
     /**
      * Get the connected FTDI devices.
      * @param deviceType Filtering option.
@@ -507,12 +508,72 @@ public class FTDevice {
      * supported.
      * @param inTransferSize Transfer size for USB IN request
      * @param outTransferSize Transfer size for USB OUT request
-     * @throws FTD2XXException 
+     * @throws FTD2XXException If something goes wrong.
      */
     public void setUSBParameters(int inTransferSize, int outTransferSize)
             throws FTD2XXException {
         ensureFTStatus(ftd2xx.FT_SetUSBParameters(ftHandle, inTransferSize,
                 outTransferSize));
+    }
+
+    /**
+     * Program the EEPROM data
+     * @param programData EEPROM to program
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void writeEEPROM(EEPROMData programData)
+            throws FTD2XXException {
+        ensureFTStatus(ftd2xx.FT_EE_Program(ftHandle,
+                programData.ft_program_data));
+    }
+
+    /**
+     * Read device EEPROM data
+     * @return EEPROM data
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public EEPROMData readEEPROM() throws FTD2XXException {
+        FTD2XX.FT_PROGRAM_DATA.ByReference ftByReference =
+                new FTD2XX.FT_PROGRAM_DATA.ByReference();
+        ensureFTStatus(ftd2xx.FT_EE_Read(ftHandle, ftByReference));
+        return new EEPROMData(ftByReference);
+    }
+
+    /**
+     * Get the available size of the EEPROM user area
+     * @return available size in bytes, of the EEPROM user area
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public int getEEPROMUserAreaSize() throws FTD2XXException {
+        IntByReference size = new IntByReference();
+        ensureFTStatus(ftd2xx.FT_EE_UASize(ftHandle, size));
+        return size.getValue();
+    }
+
+    /**
+     * Read the contents of the EEPROM user area
+     * @param numberOfBytes Size in bytes, to be read
+     * @return User EEPROM content
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public byte[] readEEPROMUserArea(int numberOfBytes)
+            throws FTD2XXException {
+        IntByReference actually = new IntByReference();
+        Memory dest = new Memory(numberOfBytes);
+        ensureFTStatus(ftd2xx.FT_EE_UARead(ftHandle, dest, numberOfBytes,
+                actually));
+        return dest.getByteArray(0, actually.getValue());
+    }
+
+    /**
+     * Write data into the EEPROM user area
+     * @param data byte[] to write
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void writeEEPROMUserArea(byte[] data) throws FTD2XXException {
+        Memory source = new Memory(data.length);
+        source.write(0, data, 0, data.length);
+        ensureFTStatus(ftd2xx.FT_EE_UAWrite(ftHandle, source, data.length));
     }
 
     /**
@@ -548,6 +609,7 @@ public class FTDevice {
      * Write byte to device.
      * @param b Byte to send (0..255)
      * @return It was success?
+     * @throws FTD2XXException  
      */
     public boolean write(int b) throws FTD2XXException {
         byte[] c = new byte[1];
@@ -596,6 +658,10 @@ public class FTDevice {
         return (ret == 1) ? ((int) c[0] & 0xFF) : -1;
     }
 
+    /**
+     * Get an InputStream to device.
+     * @return InputStream
+     */
     public InputStream getInputStream() {
         if (fTDeviceInputStream == null) {
             fTDeviceInputStream = new FTDeviceInputStream(this);
@@ -603,6 +669,10 @@ public class FTDevice {
         return fTDeviceInputStream;
     }
 
+    /**
+     * Get an OutputStream to device.
+     * @return OutputStream
+     */
     public OutputStream getOutputStream() {
         if (fTDeviceOutputStream == null) {
             fTDeviceOutputStream = new FTDeviceOutputStream(this);
