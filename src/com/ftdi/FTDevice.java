@@ -564,6 +564,21 @@ public class FTDevice {
                 actually));
         return dest.getByteArray(0, actually.getValue());
     }
+    
+    /**
+     * Read all contents of the EEPROM user area
+     * @return User EEPROM content
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public byte[] readFullEEPROMUserArea()
+            throws FTD2XXException {
+        int numberOfBytes = getEEPROMUserAreaSize();
+        IntByReference actually = new IntByReference();
+        Memory dest = new Memory(numberOfBytes);
+        ensureFTStatus(ftd2xx.FT_EE_UARead(ftHandle, dest, numberOfBytes,
+                actually));
+        return dest.getByteArray(0, actually.getValue());
+    }
 
     /**
      * Write data into the EEPROM user area
