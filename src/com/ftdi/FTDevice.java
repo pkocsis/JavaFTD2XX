@@ -42,7 +42,7 @@ import java.util.logging.Logger;
 public class FTDevice {
 
     static private final FTD2XX ftd2xx = FTD2XX.INSTANCE;
-    private final int devID, devLocationID;
+    private final int devID, devLocationID, flag;
     private final DeviceType devType;
     private int ftHandle;
     private final String devSerialNumber, devDescription;
@@ -50,13 +50,15 @@ public class FTDevice {
     private FTDeviceOutputStream fTDeviceOutputStream = null;
 
     private FTDevice(DeviceType devType, int devID, int devLocationID,
-            String devSerialNumber, String devDescription, int ftHandle) {
+            String devSerialNumber, String devDescription, int ftHandle,
+            int flag) {
         this.devType = devType;
         this.devID = devID;
         this.devLocationID = devLocationID;
         this.devSerialNumber = devSerialNumber;
         this.devDescription = devDescription;
         this.ftHandle = ftHandle;
+        this.flag = flag;
     }
 
     /**
@@ -99,6 +101,14 @@ public class FTDevice {
         return devLocationID;
     }
 
+    /**
+     * Get device flag.
+     * @return flag.
+     */
+    public int getFlag() {
+        return flag;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -130,21 +140,7 @@ public class FTDevice {
         }
     }
 
-    /**
-     * Get the connected FTDI devices.
-     * @return List contain available FTDI devices.
-     * @throws FTD2XXException If something goes wrong.
-     */
-    public static List<FTDevice> getDevices() throws FTD2XXException {
-        IntByReference devNum = new IntByReference();
-
-        ensureFTStatus(ftd2xx.FT_CreateDeviceInfoList(devNum));
-
-        Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
-                "Found devs:{0}", devNum.getValue());
-
-        ArrayList<FTDevice> devs = new ArrayList<FTDevice>(devNum.getValue());
-
+    private static FTDevice getXthDevice(int Xth) throws FTD2XXException {
         IntByReference flag = new IntByReference();
         IntByReference devType = new IntByReference();
         IntByReference devID = new IntByReference();
@@ -152,23 +148,60 @@ public class FTDevice {
         IntByReference ftHandle = new IntByReference();
         Memory devSerNum = new Memory(16);
         Memory devDesc = new Memory(64);
-        for (int i = 0; i < devNum.getValue(); i++) {
-            ensureFTStatus(ftd2xx.FT_GetDeviceInfoDetail(i, flag, devType, devID,
-                    locID, devSerNum, devDesc, ftHandle));
 
-            //device is occupied?
-            if ((flag.getValue() & FTD2XX.FT_FLAGS_OPENED) == 0) {
-                devs.add(new FTDevice(DeviceType.values()[devType.getValue()],
-                        devID.getValue(), locID.getValue(), devSerNum.getString(0),
-                        devDesc.getString(0), ftHandle.getValue()));
-            }
+        ensureFTStatus(ftd2xx.FT_GetDeviceInfoDetail(Xth, flag, devType, devID,
+                locID, devSerNum, devDesc, ftHandle));
 
-        }
-        return devs;
+        return new FTDevice(DeviceType.values()[devType.getValue()],
+                devID.getValue(), locID.getValue(), devSerNum.getString(0),
+                devDesc.getString(0), ftHandle.getValue(), flag.getValue());
+    }
+
+    /**
+     * Get the connected FTDI devices. It will not contain opened devices.
+     * @return List contain available FTDI devices.
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public static List<FTDevice> getDevices() throws FTD2XXException {
+        return getDevices(false);
     }
 
     /**
      * Get the connected FTDI devices.
+     * @param isIncludeClosedDevices Would you like to see opened devices?
+     * @return List contain available FTDI devices.
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public static List<FTDevice> getDevices(boolean isIncludeOpenedDevices)
+            throws FTD2XXException {
+        IntByReference devNum = new IntByReference();
+
+        ensureFTStatus(ftd2xx.FT_CreateDeviceInfoList(devNum));
+
+        ArrayList<FTDevice> devs = new ArrayList<FTDevice>(devNum.getValue());
+
+        for (int i = 0; i < devNum.getValue(); i++) {
+            FTDevice device = getXthDevice(i);
+            //device is occupied?
+            if (isIncludeOpenedDevices) {
+                devs.add(device);
+            } else {
+                if ((device.flag & FTD2XX.FT_FLAGS_OPENED) == 0) {
+                    devs.add(device);
+                }
+            }
+
+        }
+        
+        Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
+                "Found devs: {0} (All:{1})",
+                new Object[]{devs.size(), devNum.getValue()});
+        
+        return devs;
+    }
+
+    /**
+     * Get the connected FTDI devices. It will not contain opened devices.
      * @param description Filtering option, exact match need.
      * @return List contain available FTDI devices.
      * @throws FTD2XXException If something goes wrong.
@@ -179,36 +212,27 @@ public class FTDevice {
 
         ensureFTStatus(ftd2xx.FT_CreateDeviceInfoList(devNum));
 
-        Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
-                "Found devs:{0}", devNum.getValue());
-
         ArrayList<FTDevice> devs = new ArrayList<FTDevice>(devNum.getValue());
 
-        IntByReference flag = new IntByReference();
-        IntByReference devType = new IntByReference();
-        IntByReference devID = new IntByReference();
-        IntByReference locID = new IntByReference();
-        IntByReference ftHandle = new IntByReference();
-        Memory devSerNum = new Memory(16);
-        Memory devDesc = new Memory(64);
         for (int i = 0; i < devNum.getValue(); i++) {
-            ensureFTStatus(ftd2xx.FT_GetDeviceInfoDetail(i, flag, devType, devID,
-                    locID, devSerNum, devDesc, ftHandle));
+            FTDevice device = getXthDevice(i);
 
-            if (((flag.getValue() & FTD2XX.FT_FLAGS_OPENED) == 0)
-                    && description.equals(devDesc.getString(0))) {
-                devs.add(new FTDevice(DeviceType.values()[devType.getValue()],
-                        devID.getValue(), locID.getValue(),
-                        devSerNum.getString(0), devDesc.getString(0),
-                        ftHandle.getValue()));
+            if (((device.flag & FTD2XX.FT_FLAGS_OPENED) == 0)
+                    && description.equals(device.devDescription)) {
+                devs.add(device);
             }
 
         }
+        
+        Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
+                "Found devs: {0} (All:{1})",
+                new Object[]{devs.size(), devNum.getValue()});
+        
         return devs;
     }
 
     /**
-     * Get the connected FTDI devices.
+     * Get the connected FTDI devices. It will not contain opened devices.
      * @param serialNumber Filtering option, exact match need.
      * @return List contain available FTDI devices.
      * @throws FTD2XXException If something goes wrong.
@@ -219,36 +243,27 @@ public class FTDevice {
 
         ensureFTStatus(ftd2xx.FT_CreateDeviceInfoList(devNum));
 
-        Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
-                "Found devs:{0}", devNum.getValue());
-
         ArrayList<FTDevice> devs = new ArrayList<FTDevice>(devNum.getValue());
 
-        IntByReference flag = new IntByReference();
-        IntByReference devType = new IntByReference();
-        IntByReference devID = new IntByReference();
-        IntByReference locID = new IntByReference();
-        IntByReference ftHandle = new IntByReference();
-        Memory devSerNum = new Memory(16);
-        Memory devDesc = new Memory(64);
         for (int i = 0; i < devNum.getValue(); i++) {
-            ensureFTStatus(ftd2xx.FT_GetDeviceInfoDetail(i, flag, devType, devID,
-                    locID, devSerNum, devDesc, ftHandle));
+            FTDevice device = getXthDevice(i);
 
-            if (((flag.getValue() & FTD2XX.FT_FLAGS_OPENED) == 0)
-                    && serialNumber.equals(devSerNum.getString(0))) {
-                devs.add(new FTDevice(DeviceType.values()[devType.getValue()],
-                        devID.getValue(), locID.getValue(),
-                        devSerNum.getString(0), devDesc.getString(0),
-                        ftHandle.getValue()));
+            if (((device.getFlag() & FTD2XX.FT_FLAGS_OPENED) == 0)
+                    && serialNumber.equals(device.devSerialNumber)) {
+                devs.add(device);
             }
 
         }
+        
+        Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
+                "Found devs: {0} (All:{1})",
+                new Object[]{devs.size(), devNum.getValue()});
+        
         return devs;
     }
 
     /**
-     * Get the connected FTDI devices.
+     * Get the connected FTDI devices. It will not contain opened devices.
      * @param deviceType Filtering option.
      * @return List contain available FTDI devices.
      * @throws FTD2XXException If something goes wrong.
@@ -259,31 +274,22 @@ public class FTDevice {
 
         ensureFTStatus(ftd2xx.FT_CreateDeviceInfoList(devNum));
 
-        Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
-                "Found devs:{0}", devNum.getValue());
-
         ArrayList<FTDevice> devs = new ArrayList<FTDevice>(devNum.getValue());
 
-        IntByReference flag = new IntByReference();
-        IntByReference devType = new IntByReference();
-        IntByReference devID = new IntByReference();
-        IntByReference locID = new IntByReference();
-        IntByReference ftHandle = new IntByReference();
-        Memory devSerNum = new Memory(16);
-        Memory devDesc = new Memory(64);
         for (int i = 0; i < devNum.getValue(); i++) {
-            ensureFTStatus(ftd2xx.FT_GetDeviceInfoDetail(i, flag, devType, devID,
-                    locID, devSerNum, devDesc, ftHandle));
+            FTDevice device = getXthDevice(i);
 
-            if (((flag.getValue() & FTD2XX.FT_FLAGS_OPENED) == 0)
-                    && devType.getValue() == deviceType.constant()) {
-                devs.add(new FTDevice(DeviceType.values()[devType.getValue()],
-                        devID.getValue(), locID.getValue(),
-                        devSerNum.getString(0), devDesc.getString(0),
-                        ftHandle.getValue()));
+            if (((device.flag & FTD2XX.FT_FLAGS_OPENED) == 0)
+                    && device.devType.equals(deviceType)) {
+                devs.add(device);
             }
 
         }
+
+        Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
+                "Found devs: {0} (All:{1})",
+                new Object[]{devs.size(), devNum.getValue()});
+
         return devs;
     }
 
@@ -564,7 +570,7 @@ public class FTDevice {
                 actually));
         return dest.getByteArray(0, actually.getValue());
     }
-    
+
     /**
      * Read all contents of the EEPROM user area
      * @return User EEPROM content
