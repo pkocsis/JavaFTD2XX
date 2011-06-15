@@ -169,7 +169,7 @@ public class FTDevice {
 
     /**
      * Get the connected FTDI devices.
-     * @param isIncludeClosedDevices Would you like to see opened devices?
+     * @param isIncludeOpenedDevices Would you like to see opened devices?
      * @return List contain available FTDI devices.
      * @throws FTD2XXException If something goes wrong.
      */
