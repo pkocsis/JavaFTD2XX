@@ -27,6 +27,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -579,11 +580,21 @@ public class FTDevice {
     public byte[] readFullEEPROMUserArea()
             throws FTD2XXException {
         int numberOfBytes = getEEPROMUserAreaSize();
+        return readEEPROMUserArea(numberOfBytes);
+    }
+    
+    /**
+     * Read all contents of the EEPROM user area as String
+     * @return User EEPROM content as String
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public String readFullEEPROMUserAreaAsString() throws IOException{
         IntByReference actually = new IntByReference();
+        int numberOfBytes = getEEPROMUserAreaSize();
         Memory dest = new Memory(numberOfBytes);
         ensureFTStatus(ftd2xx.FT_EE_UARead(ftHandle, dest, numberOfBytes,
                 actually));
-        return dest.getByteArray(0, actually.getValue());
+        return dest.getString(0);
     }
 
     /**
@@ -595,6 +606,17 @@ public class FTDevice {
         Memory source = new Memory(data.length);
         source.write(0, data, 0, data.length);
         ensureFTStatus(ftd2xx.FT_EE_UAWrite(ftHandle, source, data.length));
+    }
+    
+    /**
+     * Write string into the EEPROM user area
+     * @param data byte[] to write
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public void writeEEPROMUserArea(String data) throws FTD2XXException {
+        Memory source = new Memory(data.length());
+        source.setString(0, data);
+        ensureFTStatus(ftd2xx.FT_EE_UAWrite(ftHandle, source, data.length()));
     }
 
     /**
