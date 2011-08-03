@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.StringTokenizer;
 
 /**
  *
@@ -48,7 +49,7 @@ interface FTD2XX extends Library {
         private Loader() {
         }
 
-        static File getNative() {
+        static String getNative() {
             InputStream in = null;
             FileOutputStream fos = null;
             File fileOut = null;
@@ -78,8 +79,8 @@ interface FTD2XX extends Library {
 
             if (in != null) {
                 try {
-                    fileOut = File.createTempFile(
-                            "ftd2xx", Platform.isWindows() ? ".dll"
+                    fileOut = File.createTempFile(Platform.isMac() ? "lib" : ""
+                            + "ftd2xx", Platform.isWindows() ? ".dll"
                             : Platform.isLinux() ? ".so" : ".dylib");
                     fileOut.deleteOnExit();
 
@@ -107,7 +108,16 @@ interface FTD2XX extends Library {
                         } catch (IOException ex) {
                         }
                     }
-                    return fileOut;
+
+                    String res;
+                    if (Platform.isMac()) {
+                        StringTokenizer st = new StringTokenizer(
+                                fileOut.getName(), ".");
+                        res = st.nextToken().substring(3);
+                    } else {
+                        res = fileOut.getName();
+                    }
+                    return res;
                 }
             } else {
                 throw new Error("Not supported OS");
@@ -115,7 +125,7 @@ interface FTD2XX extends Library {
         }
     }
     final FTD2XX INSTANCE = (FTD2XX) Native.loadLibrary(
-            Loader.getNative().getName(), FTD2XX.class);
+            Loader.getNative(), FTD2XX.class);
     public final static int FT_FLAGS_OPENED = 0x00000001;
     public final static int FT_LIST_NUMBER_ONLY = 0x80000,
             FT_LIST_BY_INDEX = 0x40000000,
