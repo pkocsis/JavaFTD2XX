@@ -24,7 +24,6 @@
 package com.ftdi;
 
 import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import java.io.IOException;
@@ -193,11 +192,11 @@ public class FTDevice {
             }
 
         }
-        
+
         Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
                 "Found devs: {0} (All:{1})",
                 new Object[]{devs.size(), devNum.getValue()});
-        
+
         return devs;
     }
 
@@ -224,11 +223,11 @@ public class FTDevice {
             }
 
         }
-        
+
         Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
                 "Found devs: {0} (All:{1})",
                 new Object[]{devs.size(), devNum.getValue()});
-        
+
         return devs;
     }
 
@@ -255,11 +254,11 @@ public class FTDevice {
             }
 
         }
-        
+
         Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
                 "Found devs: {0} (All:{1})",
                 new Object[]{devs.size(), devNum.getValue()});
-        
+
         return devs;
     }
 
@@ -488,7 +487,7 @@ public class FTDevice {
      */
     public void setBitMode(byte ucMask, BitModes bitMode)
             throws FTD2XXException {
-        ensureFTStatus(ftd2xx.FT_SetBitmode(ftHandle, ucMask,
+        ensureFTStatus(ftd2xx.FT_SetBitMode(ftHandle, ucMask,
                 (byte) bitMode.constant()));
     }
 
@@ -582,13 +581,13 @@ public class FTDevice {
         int numberOfBytes = getEEPROMUserAreaSize();
         return readEEPROMUserArea(numberOfBytes);
     }
-    
+
     /**
      * Read all contents of the EEPROM user area as String
      * @return User EEPROM content as String
      * @throws FTD2XXException If something goes wrong.
      */
-    public String readFullEEPROMUserAreaAsString() throws IOException{
+    public String readFullEEPROMUserAreaAsString() throws IOException {
         IntByReference actually = new IntByReference();
         int numberOfBytes = getEEPROMUserAreaSize();
         Memory dest = new Memory(numberOfBytes);
@@ -607,7 +606,7 @@ public class FTDevice {
         source.write(0, data, 0, data.length);
         ensureFTStatus(ftd2xx.FT_EE_UAWrite(ftHandle, source, data.length));
     }
-    
+
     /**
      * Write string into the EEPROM user area
      * @param data byte[] to write
@@ -699,6 +698,25 @@ public class FTDevice {
         byte[] c = new byte[1];
         int ret = read(c);
         return (ret == 1) ? ((int) c[0] & 0xFF) : -1;
+    }
+
+    /**
+     * Read given bytes from device.
+     * @param number How many bytes do you want to read?
+     * @return Read bytes
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public byte[] read(int number)
+            throws FTD2XXException {
+        byte[] ret = new byte[number];
+        int actually = read(ret);
+        if (actually != number) {
+            byte[] shrink = new byte[actually];
+            System.arraycopy(ret, 0, shrink, 0, actually);
+            return shrink;
+        } else {
+            return ret;
+        }
     }
 
     /**

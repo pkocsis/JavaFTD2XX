@@ -1313,7 +1313,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetBitmode(int ftHandle, byte ucMask, byte ucMode);
+    int FT_SetBitMode(int ftHandle, byte ucMask, byte ucMode);
 
     /**
      * Gets the instantaneous value of the data bus. 
