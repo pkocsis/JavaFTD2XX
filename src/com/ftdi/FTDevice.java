@@ -24,6 +24,7 @@
 package com.ftdi;
 
 import com.sun.jna.Memory;
+import com.sun.jna.Platform;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import java.io.IOException;
@@ -155,6 +156,27 @@ public class FTDevice {
         return new FTDevice(DeviceType.values()[devType.getValue()],
                 devID.getValue(), locID.getValue(), devSerNum.getString(0),
                 devDesc.getString(0), ftHandle.getValue(), flag.getValue());
+    }
+    
+    /**
+     * A command to include a custom VID and PID combination within the internal
+     * device list table. This will allow the driver to load for the specified
+     * VID and PID combination. Only supported on Linux and Mac OS X.
+     *
+     * @param dwVID Device Vendor ID (VID)
+     * @param dwPID Device Product ID (PID)
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public static void setVidPid(int dwVID, int dwPID) throws FTD2XXException {
+        if (Platform.isLinux() || Platform.isMac()) {
+            Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
+                    "Setting custom VID/PID to {0}/{1}.",
+                    new Object[]{dwVID, dwPID});
+            ensureFTStatus(ftd2xx.FT_SetVIDPID(dwVID, dwPID));
+        } else {
+            Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
+                    "Ignoring request to set VID/PID. Windows not supported.");
+        }
     }
 
     /**
