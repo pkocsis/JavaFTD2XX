@@ -127,6 +127,7 @@ interface FTD2XX extends Library {
     final FTD2XX INSTANCE = (FTD2XX) Native.loadLibrary(
             Loader.getNative(), FTD2XX.class);
     public final static int FT_FLAGS_OPENED = 0x00000001;
+    public final static int FT_FLAGS_HISPEED = 0x00000002;
     public final static int FT_LIST_NUMBER_ONLY = 0x80000,
             FT_LIST_BY_INDEX = 0x40000000,
             FT_LIST_ALL = 0x20000000;
