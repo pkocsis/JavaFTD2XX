@@ -188,12 +188,17 @@ public class FTDevice {
         if (Platform.isLinux() || Platform.isMac()) {
             Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
                     "Setting custom VID/PID to {0}/{1}.",
-                    new Object[]{dwVID, dwPID});
+                    new Object[]{toHex4(dwVID), toHex4(dwPID)});
             ensureFTStatus(ftd2xx.FT_SetVIDPID(dwVID, dwPID));
         } else {
             Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
                     "Ignoring request to set VID/PID. Windows not supported.");
         }
+    }
+    
+    private static String toHex4(int value) {
+        // Bitwise and (&) with 0xFFFF is to ensure unsigned value.
+        return String.format("0x%04x", (0xFFFF & value));
     }
 
     /**

@@ -35,39 +35,42 @@ public enum DeviceStatus {
     /**
      * Clear To Send
      */
-    CTS(0x10),
+    CTS(0x10, "Clear To Send"),
     /**
      * Data Set Ready
      */
-    DSR(0x20),
+    DSR(0x20, "Data Set Ready"),
     /**
      * Ring Indicator
      */
-    RI(0x40),
+    RI(0x40, "Ring Indicator"),
     /**
      * Data Carrier Detect
      */
-    DCD(0x80),
+    DCD(0x80, "Data Carrier Detect"),
     /**
      * Overrun Error
      */
-    OE(0x02),
+    OE(0x02, "Overrun Error"),
     /**
      * Parity Error
      */
-    PE(0x04),
+    PE(0x04, "Parity Error"),
     /**
      * Framing Error
      */
-    FE(0x08),
+    FE(0x08, "Framing Error"),
     /**
      * Break Interrupt
      */
-    BI(0x10);
+    BI(0x10, "Break Interrupt");
+    
     private final int constant;
+    private final String description;
 
-    private DeviceStatus(int constant) {
+    private DeviceStatus(int constant, String description) {
         this.constant = constant;
+        this.description = description;
     }
 
     int constant() {
@@ -83,4 +86,10 @@ public enum DeviceStatus {
         }
         return EnumSet.copyOf(enu);
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + " (" + description + ")";
+    }
+    
 }
