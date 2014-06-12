@@ -47,7 +47,8 @@ enum FT_STATUS {
     EEPROM_NOT_PROGRAMMED,
     INVALID_ARGS,
     NOT_SUPPORTED,
-    OTHER_ERROR;
+    OTHER_ERROR,
+    DEVICE_LIST_NOT_READY;
     
     int constant(){
         return this.ordinal();

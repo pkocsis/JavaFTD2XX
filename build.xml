@@ -74,7 +74,7 @@
     <target name="-post-jar">
         <jar jarfile="${dist.dir}/JavaFTD2XX-${project.version}.jar">
             <zipfileset src="${dist.jar}" excludes="META-INF/*" />
-            <zipfileset src="lib/jna.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/jna-3.2.7-arm-hf.jar" excludes="META-INF/*" />
             <fileset dir="native/" />
         </jar>
     </target>

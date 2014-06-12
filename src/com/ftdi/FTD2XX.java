@@ -36,7 +36,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -48,42 +52,57 @@ interface FTD2XX extends Library {
 
         private Loader() {
         }
-
+        
         static String getNative() {
             InputStream in = null;
             FileOutputStream fos = null;
             File fileOut = null;
-            System.setProperty("jna.library.path",
-                    System.getProperty("java.io.tmpdir"));
-
+            String fromStream = null;
+            System.setProperty("jna.library.path", System.getProperty("java.io.tmpdir"));
+            Logger.getLogger(FTD2XX.class.getName()).log(Level.INFO,
+                "JNA Library Path is: {0}", System.getProperty("jna.library.path"));
+            
             if (Platform.isMac()) {
-                in = Loader.class.getResourceAsStream(
-                        "/natives/libftd2xx.dylib");
+                fromStream = "/natives/libftd2xx.dylib";
             } else if (Platform.is64Bit()) {
                 if (Platform.isLinux()) {
-                    in = Loader.class.getResourceAsStream(
-                            "/natives/x86_64/libftd2xx.so");
+                    fromStream = "/natives/x86_64/libftd2xx.so";
                 } else if (Platform.isWindows()) {
-                    in = Loader.class.getResourceAsStream(
-                            "/natives/x86_64/ftd2xx.dll");
+                    fromStream = "/natives/x86_64/ftd2xx.dll";
                 }
             } else {
-                if (Platform.isLinux()) {
-                    in = Loader.class.getResourceAsStream(
-                            "/natives/i386/libftd2xx.so");
+                if (System.getProperty("os.arch").toLowerCase().trim().startsWith("arm")) {
+                    if (new File("/lib/arm-linux-gnueabihf").exists()) {
+                        fromStream = "/natives/arm926hf/libftd2xx.so";
+                    } else {
+                        // TODO: Soft Float ARM has not yet been tested. The native 
+                        //   libjnidispatch.so file inside of lib/jna-3.2.7.jar file 
+                        //   may need to be replaced by the /usr/lib/jni/libjnidispatch.so 
+                        //   file created by running "apt-get install libjna-java".
+                        fromStream = "/natives/arm926/libftd2xx.so";
+                    }
+                } else if (Platform.isLinux()) {
+                    fromStream = "/natives/i386/libftd2xx.so";
                 } else if (Platform.isWindows()) {
-                    in = Loader.class.getResourceAsStream(
-                            "/natives/i386/ftd2xx.dll");
+                    fromStream = "/natives/i386/ftd2xx.dll";
                 }
             }
 
-            if (in != null) {
+            if (fromStream == null) {
+                throw new Error("Not supported OS.");
+            } else {
                 try {
-                    fileOut = File.createTempFile(Platform.isMac() ? "lib" : ""
-                            + "ftd2xx", Platform.isWindows() ? ".dll"
-                            : Platform.isLinux() ? ".so" : ".dylib");
+                    fileOut = new File(System.getProperty("java.io.tmpdir") + 
+                            (!Platform.isWindows() ? "/lib" : "\\")
+                            + "ftd2xx" + (Platform.isWindows() ? ".dll"
+                            : Platform.isLinux() ? ".so" : ".dylib"));
                     fileOut.deleteOnExit();
+                    
+                    Logger.getLogger(FTD2XX.class.getName()).log(Level.INFO,
+                        "Copying native library from lib/JavaFTD2XX-0.2.8.jar:{0} to {1}", 
+                        new Object[]{fromStream, fileOut});
 
+                    in = Loader.class.getResourceAsStream(fromStream);
                     fos = new FileOutputStream(fileOut);
 
                     int count;
@@ -119,8 +138,6 @@ interface FTD2XX extends Library {
                     }
                     return res;
                 }
-            } else {
-                throw new Error("Not supported OS");
             }
         }
     }
@@ -151,6 +168,11 @@ interface FTD2XX extends Library {
         public Memory SerialNumber = new Memory(16);
         public Memory Description = new Memory(64);
         public int ftHandle;
+
+        @Override
+        protected List getFieldOrder() {
+            return Arrays.asList(new String[] { "Flags", "Type", "ID", "LocId", "SerialNumber", "Description", "ftHandle" });
+        }
     }
 
     public static class FT_PROGRAM_DATA extends Structure {
@@ -702,6 +724,12 @@ interface FTD2XX extends Library {
          * non-zero if using ACBUS7 to save power for self-powered designs
          */
         public byte PowerSaveEnableH;
+        
+        @Override
+        protected List getFieldOrder() {
+           return Arrays.asList(new String[] { "Signature1", "Signature2", "Version", "VendorId", "ProductId", "Manufacturer", "ManufacturerId", "Description", "SerialNumber", "MaxPower", "PnP", "SelfPowered", "RemoteWakeup", "Rev4", "IsoIn", "IsoOut", "PullDownEnable", "SerNumEnable", "USBVersionEnable", "USBVersion", "Rev5", "IsoInA", "IsoInB", "IsoOutA", "IsoOutB", "PullDownEnable5", "SerNumEnable5", "USBVersionEnable5", "USBVersion5", "AIsHighCurrent", "BIsHighCurrent", "IFAIsFifo", "IFAIsFifoTar", "IFAIsFastSer", "AIsVCP", "IFBIsFifo", "IFBIsFifoTar", "IFBIsFastSer", "BIsVCP", "UseExtOsc", "HighDriveIOs", "EndpointSize", "PullDownEnableR", "SerNumEnableR", "InvertTXD", "InvertRXD", "InvertRTS", "InvertCTS", "InvertDTR", "InvertDSR", "InvertDCD", "InvertRI", "Cbus0", "Cbus1", "Cbus2", "Cbus3", "Cbus4", "RIsD2XX", "PullDownEnable7", "SerNumEnable7", "ALSlowSlew", "ALSchmittInput", "ALDriveCurrent", "AHSlowSlew", "AHSchmittInput", "AHDriveCurrent", "BLSlowSlew", "BLSchmittInput", "BLDriveCurrent", "BHSlowSlew", "BHSchmittInput", "BHDriveCurrent", "IFAIsFifo7", "IFAIsFifoTar7", "IFAIsFastSer7", "AIsVCP7", "IFBIsFifo7", "IFBIsFifoTar7", "IFBIsFastSer7", "BIsVCP7", "PowerSaveEnable", "PullDownEnable8", "SerNumEnable8", "ASlowSlew", "ASchmittInput", "ADriveCurrent", "BSlowSlew", "BSchmittInput", "BDriveCurrent", "CSlowSlew", "CSchmittInput", "CDriveCurrent", "DSlowSlew", "DSchmittInput", "DDriveCurrent", "ARIIsTXDEN", "BRIIsTXDEN", "CRIIsTXDEN", "DRIIsTXDEN", "AIsVCP8", "BIsVCP8", "CIsVCP8", "DIsVCP8", "PullDownEnableH", "SerNumEnableH", "ACSlowSlewH", "ACSchmittInputH", "ACDriveCurrentH", "ADSlowSlewH", "ADSchmittInputH", "ADDriveCurrentH", "Cbus0H", "Cbus1H", "Cbus2H", "Cbus3H", "Cbus4H", "Cbus5H", "Cbus6H", "Cbus7H", "Cbus8H", "Cbus9H", "IsFifoH", "IsFifoTarH", "IsFastSerH", "IsFT1248H", "FT1248CpolH", "FT1248LsbH", "FT1248FlowControlH", "IsVCPH", "PowerSaveEnableH" });
+        }
+
     }
 
     /**
@@ -850,6 +878,9 @@ interface FTD2XX extends Library {
     int FT_Write(int ftHandle, Pointer lpBuffer, int dwBytesToWrite,
             IntByReference lpdwBytesWritten);
 
+    int FT_IoCtl(int ftHandle, int dwIoControlCode, Pointer lpInBuf, int nInBufSize, Pointer lpOutBuf, int nOutBufSize,
+            IntByReference lpBytesReturned, IntByReference lpOverlapped);
+
     /**
      * This function sets the baud rate for the device. 
      * @param ftHandle Handle of the device.
@@ -980,6 +1011,8 @@ interface FTD2XX extends Library {
             IntByReference lpdwID, Pointer pcSerialNumber, Pointer pcDescription,
             Pointer pvDummy);
 
+    int FT_GetDeviceLocId(int ftHandle, IntByReference lpdwLocId);
+
     /**
      * This function returns the D2XX driver version number. 
      * @param ftHandle Handle of the device. 
@@ -1062,6 +1095,12 @@ interface FTD2XX extends Library {
      * FT error code.
      */
     int FT_SetBreakOff(int ftHandle);
+
+    int FT_SetWaitMask(int ftHandle, int Mask);
+
+    int FT_WaitOnMask(int ftHandle, IntByReference Mask);
+
+    int FT_GetEventStatus(int ftHandle, IntByReference Mask);
 
     /**
      * This function purges receive and transmit buffers in the device. 
@@ -1187,6 +1226,14 @@ interface FTD2XX extends Library {
      */
     int FT_EE_Read(int ftHandle, FT_PROGRAM_DATA.ByReference pData);
 
+    int FT_EE_ReadConfig(int ftHandle, byte ucAddress, Pointer pucValue);
+
+    int FT_EE_WriteConfig(int ftHandle, byte ucAddress, byte ucValue);
+
+    int FT_EE_ReadECC(int ftHandle, byte ucOption, ShortByReference lpwValue);
+
+    int FT_GetQueueStatusEx(int ftHandle, byte ucAddress, IntByReference dwRxBytes);
+
     /**
      * Read the contents of the EEPROM and pass strings separately. 
      * @param ftHandle Handle of the device. 
@@ -1269,6 +1316,26 @@ interface FTD2XX extends Library {
      * FT error code.
      */
     int FT_EE_UAWrite(int ftHandle, Pointer pucData, int dwDataLen);
+
+    /**
+     * Read data from the EEPROM, this command will work for all existing FTDI chipset, and must be used for the FT-X series. 
+     * @param ftHandle Handle of the device. 
+     * @param eepromData Pointer to a buffer that contains the data to be read.
+     * @param eepromDataSize Size of the eepromData buffer that contains storage for the data to be read.
+     * @param Manufacturer Pointer to a null-terminated string containing the manufacturer name.
+     * @param ManufacturerId Pointer to a null-terminated string containing the manufacturer ID.
+     * @param Description Pointer to a null-terminated string containing the device description.
+     * @param SerialNumber Pointer to a null-terminated string containing the device serial number.
+     * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
+     * FT error code.
+     */
+    int FT_EEPROM_Read(int ftHandle, Pointer eepromData, int eepromDataSize, 
+            String Manufacturer, String ManufacturerId, String Description,
+            String SerialNumber);
+
+    int FT_EEPROM_Program(int ftHandle, Pointer eepromData, int eepromDataSize, 
+            String Manufacturer, String ManufacturerId, String Description,
+            String SerialNumber);
 
     /**
      * Set the latency timer value.  
