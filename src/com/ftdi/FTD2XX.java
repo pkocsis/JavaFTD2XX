@@ -31,7 +31,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.ptr.ShortByReference;
 import java.io.File;
@@ -101,7 +100,7 @@ public interface FTD2XX extends Library {
                     fileOut.deleteOnExit();
                     
                     Logger.getLogger(FTD2XX.class.getName()).log(Level.INFO,
-                        "Copying native library from lib/JavaFTD2XX-0.2.8.jar:{0} to {1}", 
+                        "Copying native library from lib/JavaFTD2XX-0.2.9.jar:{0} to {1}", 
                         new Object[]{fromStream, fileOut});
 
                     in = Loader.class.getResourceAsStream(fromStream);
