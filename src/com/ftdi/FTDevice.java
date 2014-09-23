@@ -25,8 +25,10 @@ package com.ftdi;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Platform;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -45,13 +47,13 @@ public class FTDevice {
     static private final FTD2XX ftd2xx = FTD2XX.INSTANCE;
     private final int devID, devLocationID, flag;
     private final DeviceType devType;
-    private int ftHandle;
+    private Pointer ftHandle;
     private final String devSerialNumber, devDescription;
     private FTDeviceInputStream fTDeviceInputStream = null;
     private FTDeviceOutputStream fTDeviceOutputStream = null;
 
     private FTDevice(DeviceType devType, int devID, int devLocationID,
-            String devSerialNumber, String devDescription, int ftHandle,
+            String devSerialNumber, String devDescription, Pointer ftHandle,
             int flag) {
         this.devType = devType;
         this.devID = devID;
@@ -141,9 +143,9 @@ public class FTDevice {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 97 * hash + this.ftHandle;
-        return hash;
+        long hash = 5;
+        hash = 97 * hash + this.ftHandle.getInt(0);
+        return (int)hash;
     }
 
     @Override
@@ -163,16 +165,16 @@ public class FTDevice {
         IntByReference devType = new IntByReference();
         IntByReference devID = new IntByReference();
         IntByReference locID = new IntByReference();
-        IntByReference ftHandle = new IntByReference();
+        PointerByReference ftHandle = new PointerByReference();
         Memory devSerNum = new Memory(16);
         Memory devDesc = new Memory(64);
 
         ensureFTStatus(ftd2xx.FT_GetDeviceInfoDetail(Xth, flag, devType, devID,
-                locID, devSerNum, devDesc, ftHandle));
+                locID, devSerNum, devDesc, ftHandle.getPointer()));
 
         return new FTDevice(DeviceType.values()[devType.getValue()],
                 devID.getValue(), locID.getValue(), devSerNum.getString(0),
-                devDesc.getString(0), ftHandle.getValue(), flag.getValue());
+                devDesc.getString(0), ftHandle.getPointer(), flag.getValue());
     }
     
     /**
@@ -342,11 +344,11 @@ public class FTDevice {
      * @throws FTD2XXException If something goes wrong.
      */
     public void open() throws FTD2XXException {
-        Memory memory = new Memory(16);
+        Memory memory = new Memory(64);
         memory.setString(0, devSerialNumber);
-        IntByReference handle = new IntByReference();
+        PointerByReference handle = new PointerByReference();
         ensureFTStatus(ftd2xx.FT_OpenEx(memory, FTD2XX.FT_OPEN_BY_SERIAL_NUMBER,
-                handle));
+                handle.getPointer()));
         this.ftHandle = handle.getValue();
     }
 
