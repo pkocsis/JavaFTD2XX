@@ -167,7 +167,7 @@ interface FTD2XX extends Library {
         public int LocId;
         public Memory SerialNumber = new Memory(16);
         public Memory Description = new Memory(64);
-        public int ftHandle;
+        public Pointer ftHandle;
 
         @Override
         protected List getFieldOrder() {
@@ -793,7 +793,7 @@ interface FTD2XX extends Library {
     int FT_GetDeviceInfoDetail(int dwIndex, IntByReference lpdwFlags,
             IntByReference lpdwType, IntByReference lpdwID,
             IntByReference lpdwLocId, Pointer pcSerialNumber,
-            Pointer pcDescription, IntByReference ftHandle);
+            Pointer pcDescription, Pointer ftHandle);
 
     /**
      * Gets information concerning the devices currently connected.  This 
@@ -840,7 +840,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_OpenEx(Pointer pvArg1, int dwFlags, IntByReference ftHandle);
+    int FT_OpenEx(Pointer pvArg1, int dwFlags, Pointer ftHandle);
 
     /**
      * Close an open device.
@@ -848,7 +848,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_Close(int ftHandle);
+    int FT_Close(Pointer ftHandle);
 
     /**
      * Read data from the device. 
@@ -861,7 +861,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_Read(int ftHandle, Pointer lpBuffer, int dwBytesToRead,
+    int FT_Read(Pointer ftHandle, Pointer lpBuffer, int dwBytesToRead,
             IntByReference lpdwBytesReturned);
 
     /**
@@ -875,10 +875,10 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_Write(int ftHandle, Pointer lpBuffer, int dwBytesToWrite,
+    int FT_Write(Pointer ftHandle, Pointer lpBuffer, int dwBytesToWrite,
             IntByReference lpdwBytesWritten);
 
-    int FT_IoCtl(int ftHandle, int dwIoControlCode, Pointer lpInBuf, int nInBufSize, Pointer lpOutBuf, int nOutBufSize,
+    int FT_IoCtl(Pointer ftHandle, int dwIoControlCode, Pointer lpInBuf, int nInBufSize, Pointer lpOutBuf, int nOutBufSize,
             IntByReference lpBytesReturned, IntByReference lpOverlapped);
 
     /**
@@ -888,7 +888,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetBaudRate(int ftHandle, int dwBaudRate);
+    int FT_SetBaudRate(Pointer ftHandle, int dwBaudRate);
 
     /**
      * This function sets the baud rate for the device.  It is used to set 
@@ -900,7 +900,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetDivisor(int ftHandle, short usDivisor);
+    int FT_SetDivisor(Pointer ftHandle, short usDivisor);
 
     /**
      * This function sets the data characteristics for the device. 
@@ -914,7 +914,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetDataCharacteristics(int ftHandle, byte uWordLength,
+    int FT_SetDataCharacteristics(Pointer ftHandle, byte uWordLength,
             byte uStopBits, byte uParity);
 
     /**
@@ -925,7 +925,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetTimeouts(int ftHandle, int dwReadTimeout, int dwWriteTimeout);
+    int FT_SetTimeouts(Pointer ftHandle, int dwReadTimeout, int dwWriteTimeout);
 
     /**
      * This function sets the flow control for the device. 
@@ -939,7 +939,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetFlowControl(int ftHandle, short usFlowControl, byte uXon,
+    int FT_SetFlowControl(Pointer ftHandle, short usFlowControl, byte uXon,
             byte uXoff);
 
     /**
@@ -948,7 +948,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetDtr(int ftHandle);
+    int FT_SetDtr(Pointer ftHandle);
 
     /**
      * This function clears the Data Terminal Ready (DTR) control signal. 
@@ -956,7 +956,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_ClrDtr(int ftHandle);
+    int FT_ClrDtr(Pointer ftHandle);
 
     /**
      * This function sets the Request To Send (RTS) control signal. 
@@ -964,7 +964,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetRts(int ftHandle);
+    int FT_SetRts(Pointer ftHandle);
 
     /**
      * This function clears the Request To Send (RTS) control signal. 
@@ -972,7 +972,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_ClrRts(int ftHandle);
+    int FT_ClrRts(Pointer ftHandle);
 
     /**
      * Gets the modem status and line status from the device. 
@@ -982,7 +982,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_GetModemStatus(int ftHandle, IntByReference lpdwModemStatus);
+    int FT_GetModemStatus(Pointer ftHandle, IntByReference lpdwModemStatus);
 
     /**
      * Gets the number of bytes in the receive queue. 
@@ -992,7 +992,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_GetQueueStatus(int ftHandle, IntByReference lpdwAmountInRxQueue);
+    int FT_GetQueueStatus(Pointer ftHandle, IntByReference lpdwAmountInRxQueue);
 
     /**
      * Get device information for an open device. 
@@ -1007,11 +1007,11 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_GetDeviceInfo(int ftHandle, IntByReference pftType,
+    int FT_GetDeviceInfo(Pointer ftHandle, IntByReference pftType,
             IntByReference lpdwID, Pointer pcSerialNumber, Pointer pcDescription,
             Pointer pvDummy);
 
-    int FT_GetDeviceLocId(int ftHandle, IntByReference lpdwLocId);
+    int FT_GetDeviceLocId(Pointer ftHandle, IntByReference lpdwLocId);
 
     /**
      * This function returns the D2XX driver version number. 
@@ -1020,7 +1020,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_GetDriverVersion(int ftHandle, IntByReference lpdwDriverVersion);
+    int FT_GetDriverVersion(Pointer ftHandle, IntByReference lpdwDriverVersion);
 
     /**
      * This function returns D2XX DLL version number. 
@@ -1038,7 +1038,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_GetComPortNumber(int ftHandle, IntByReference lplComPortNumber);
+    int FT_GetComPortNumber(Pointer ftHandle, IntByReference lplComPortNumber);
 
     /**
      * Gets the device status including number of characters in the receive
@@ -1054,7 +1054,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_GetStatus(int ftHandle, IntByReference lpdwAmountInRxQueue,
+    int FT_GetStatus(Pointer ftHandle, IntByReference lpdwAmountInRxQueue,
             IntByReference lpdwAmountInTxQueue, IntByReference lpdwEventStatus);
 
     /**
@@ -1065,7 +1065,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetEventNotification(int ftHandle, int dwEventMask, Pointer pvArg);
+    int FT_SetEventNotification(Pointer ftHandle, int dwEventMask, Pointer pvArg);
 
     /**
      * This function sets the special characters for the device. 
@@ -1077,7 +1077,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetChars(int ftHandle, byte uEventCh, byte uEventChEn,
+    int FT_SetChars(Pointer ftHandle, byte uEventCh, byte uEventChEn,
             byte uErrorCh, byte uErrorChEn);
 
     /**
@@ -1086,7 +1086,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetBreakOn(int ftHandle);
+    int FT_SetBreakOn(Pointer ftHandle);
 
     /**
      * Resets the BREAK condition for the device.
@@ -1094,13 +1094,13 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetBreakOff(int ftHandle);
+    int FT_SetBreakOff(Pointer ftHandle);
 
-    int FT_SetWaitMask(int ftHandle, int Mask);
+    int FT_SetWaitMask(Pointer ftHandle, int Mask);
 
-    int FT_WaitOnMask(int ftHandle, IntByReference Mask);
+    int FT_WaitOnMask(Pointer ftHandle, IntByReference Mask);
 
-    int FT_GetEventStatus(int ftHandle, IntByReference Mask);
+    int FT_GetEventStatus(Pointer ftHandle, IntByReference Mask);
 
     /**
      * This function purges receive and transmit buffers in the device. 
@@ -1109,7 +1109,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_Purge(int ftHandle, int dwMask);
+    int FT_Purge(Pointer ftHandle, int dwMask);
 
     /**
      * This function sends a reset command to the device. 
@@ -1117,7 +1117,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_ResetDevice(int ftHandle);
+    int FT_ResetDevice(Pointer ftHandle);
 
     /**
      * Send a reset command to the port. 
@@ -1125,7 +1125,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_ResetPort(int ftHandle);
+    int FT_ResetPort(Pointer ftHandle);
 
     /**
      * Send a cycle command to the USB port. 
@@ -1133,7 +1133,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_CyclePort(int ftHandle);
+    int FT_CyclePort(Pointer ftHandle);
 
     /**
      * This function can be of use when trying to recover devices
@@ -1160,7 +1160,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetResetPipeRetryCount(int ftHandle, int dwCount);
+    int FT_SetResetPipeRetryCount(Pointer ftHandle, int dwCount);
 
     /**
      * Stops the driver's IN task.
@@ -1168,7 +1168,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_StopInTask(int ftHandle);
+    int FT_StopInTask(Pointer ftHandle);
 
     /**
      * Restart the driver's IN task. 
@@ -1176,7 +1176,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_RestartInTask(int ftHandle);
+    int FT_RestartInTask(Pointer ftHandle);
 
     /**
      * This function allows the maximum time in milliseconds that a USB request
@@ -1187,7 +1187,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetDeadmanTimeout(int ftHandle, int dwDeadmanTimeout);
+    int FT_SetDeadmanTimeout(Pointer ftHandle, int dwDeadmanTimeout);
 
     /**
      * Read a value from an EEPROM location. 
@@ -1197,7 +1197,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_ReadEE(int ftHandle, int dwWordOffset, ShortByReference lpwValue);
+    int FT_ReadEE(Pointer ftHandle, int dwWordOffset, ShortByReference lpwValue);
 
     /**
      * Write a value to an EEPROM location. 
@@ -1207,7 +1207,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_WriteEE(int ftHandle, int dwWordOffset, short wValue);
+    int FT_WriteEE(Pointer ftHandle, int dwWordOffset, short wValue);
 
     /**
      * Erases the device EEPROM.
@@ -1215,7 +1215,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EraseEE(int ftHandle);
+    int FT_EraseEE(Pointer ftHandle);
 
     /**
      * Read the contents of the EEPROM. 
@@ -1224,15 +1224,15 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EE_Read(int ftHandle, FT_PROGRAM_DATA.ByReference pData);
+    int FT_EE_Read(Pointer ftHandle, FT_PROGRAM_DATA.ByReference pData);
 
-    int FT_EE_ReadConfig(int ftHandle, byte ucAddress, Pointer pucValue);
+    int FT_EE_ReadConfig(Pointer ftHandle, byte ucAddress, Pointer pucValue);
 
-    int FT_EE_WriteConfig(int ftHandle, byte ucAddress, byte ucValue);
+    int FT_EE_WriteConfig(Pointer ftHandle, byte ucAddress, byte ucValue);
 
-    int FT_EE_ReadECC(int ftHandle, byte ucOption, ShortByReference lpwValue);
+    int FT_EE_ReadECC(Pointer ftHandle, byte ucOption, ShortByReference lpwValue);
 
-    int FT_GetQueueStatusEx(int ftHandle, byte ucAddress, IntByReference dwRxBytes);
+    int FT_GetQueueStatusEx(Pointer ftHandle, byte ucAddress, IntByReference dwRxBytes);
 
     /**
      * Read the contents of the EEPROM and pass strings separately. 
@@ -1249,7 +1249,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EE_ReadEx(int ftHandle, FT_PROGRAM_DATA.ByReference pData,
+    int FT_EE_ReadEx(Pointer ftHandle, FT_PROGRAM_DATA.ByReference pData,
             String Manufacturer, String ManufacturerId, String Description,
             String SerialNumber);
 
@@ -1260,7 +1260,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EE_Program(int ftHandle, FT_PROGRAM_DATA.ByReference pData);
+    int FT_EE_Program(Pointer ftHandle, FT_PROGRAM_DATA.ByReference pData);
 
     /**
      * Program the EEPROM and pass strings separately. 
@@ -1277,7 +1277,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EE_ProgramEx(int ftHandle, FT_PROGRAM_DATA.ByReference pData,
+    int FT_EE_ProgramEx(Pointer ftHandle, FT_PROGRAM_DATA.ByReference pData,
             String Manufacturer, String ManufacturerId,
             String Description, String SerialNumber);
 
@@ -1289,7 +1289,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EE_UASize(int ftHandle, IntByReference lpdwSize);
+    int FT_EE_UASize(Pointer ftHandle, IntByReference lpdwSize);
 
     /**
      * Read the contents of the EEPROM user area. 
@@ -1303,7 +1303,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EE_UARead(int ftHandle, Pointer pucData, int dwDataLen,
+    int FT_EE_UARead(Pointer ftHandle, Pointer pucData, int dwDataLen,
             IntByReference lpdwBytesRead);
 
     /**
@@ -1315,7 +1315,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EE_UAWrite(int ftHandle, Pointer pucData, int dwDataLen);
+    int FT_EE_UAWrite(Pointer ftHandle, Pointer pucData, int dwDataLen);
 
     /**
      * Read data from the EEPROM, this command will work for all existing FTDI chipset, and must be used for the FT-X series. 
@@ -1329,11 +1329,11 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EEPROM_Read(int ftHandle, Pointer eepromData, int eepromDataSize, 
+    int FT_EEPROM_Read(Pointer ftHandle, Pointer eepromData, int eepromDataSize, 
             String Manufacturer, String ManufacturerId, String Description,
             String SerialNumber);
 
-    int FT_EEPROM_Program(int ftHandle, Pointer eepromData, int eepromDataSize, 
+    int FT_EEPROM_Program(Pointer ftHandle, Pointer eepromData, int eepromDataSize, 
             String Manufacturer, String ManufacturerId, String Description,
             String SerialNumber);
 
@@ -1345,7 +1345,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetLatencyTimer(int ftHandle, byte ucTimer);
+    int FT_SetLatencyTimer(Pointer ftHandle, byte ucTimer);
 
     /**
      * Get the current value of the latency timer. 
@@ -1354,7 +1354,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_GetLatencyTimer(int ftHandle, ByteByReference pucTimer);
+    int FT_GetLatencyTimer(Pointer ftHandle, ByteByReference pucTimer);
 
     /**
      * Enables different chip modes. 
@@ -1381,7 +1381,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetBitMode(int ftHandle, byte ucMask, byte ucMode);
+    int FT_SetBitMode(Pointer ftHandle, byte ucMask, byte ucMode);
 
     /**
      * Gets the instantaneous value of the data bus. 
@@ -1391,7 +1391,7 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_GetBitmode(int ftHandle, ByteByReference pucMode);
+    int FT_GetBitmode(Pointer ftHandle, ByteByReference pucMode);
 
     /**
      * Set the USB request transfer size. 
@@ -1401,6 +1401,6 @@ interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_SetUSBParameters(int ftHandle, int dwInTransferSize,
+    int FT_SetUSBParameters(Pointer ftHandle, int dwInTransferSize,
             int dwOutTransferSize);
 }
