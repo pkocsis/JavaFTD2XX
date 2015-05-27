@@ -100,7 +100,7 @@ public interface FTD2XX extends Library {
                     fileOut.deleteOnExit();
                     
                     Logger.getLogger(FTD2XX.class.getName()).log(Level.INFO,
-                        "Copying native library from lib/JavaFTD2XX-0.2.9.jar:{0} to {1}", 
+                        "Copying native library from lib/JavaFTD2XX-0.2.10.jar:{0} to {1}", 
                         new Object[]{fromStream, fileOut});
 
                     in = Loader.class.getResourceAsStream(fromStream);
