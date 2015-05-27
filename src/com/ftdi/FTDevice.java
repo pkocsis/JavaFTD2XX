@@ -175,7 +175,7 @@ public class FTDevice {
 
         return new FTDevice(DeviceType.values()[devType.getValue()],
                 devID.getValue(), locID.getValue(), devSerNum.getString(0),
-                devDesc.getString(0), ftHandle.getValue(), flag.getValue());
+                devDesc.getString(0), ftHandle.getPointer(), flag.getValue());
     }
     
     /**
@@ -345,7 +345,7 @@ public class FTDevice {
      * @throws FTD2XXException If something goes wrong.
      */
     public void open() throws FTD2XXException {
-        Memory memory = new Memory(16);
+        Memory memory = new Memory(64);
         memory.setString(0, devSerialNumber);
         PointerByReference handle = new PointerByReference();
         ensureFTStatus(ftd2xx.FT_OpenEx(memory, FTD2XX.FT_OPEN_BY_SERIAL_NUMBER,

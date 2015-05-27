@@ -881,7 +881,7 @@ public interface FTD2XX extends Library {
     int FT_Write(Pointer ftHandle, Pointer lpBuffer, int dwBytesToWrite,
             IntByReference lpdwBytesWritten);
 
-    int FT_IoCtl(int ftHandle, int dwIoControlCode, Pointer lpInBuf, int nInBufSize, Pointer lpOutBuf, int nOutBufSize,
+    int FT_IoCtl(Pointer ftHandle, int dwIoControlCode, Pointer lpInBuf, int nInBufSize, Pointer lpOutBuf, int nOutBufSize,
             IntByReference lpBytesReturned, IntByReference lpOverlapped);
 
     /**
@@ -1014,7 +1014,7 @@ public interface FTD2XX extends Library {
             IntByReference lpdwID, Pointer pcSerialNumber, Pointer pcDescription,
             Pointer pvDummy);
 
-    int FT_GetDeviceLocId(int ftHandle, IntByReference lpdwLocId);
+    int FT_GetDeviceLocId(Pointer ftHandle, IntByReference lpdwLocId);
 
     /**
      * This function returns the D2XX driver version number. 
@@ -1099,11 +1099,11 @@ public interface FTD2XX extends Library {
      */
     int FT_SetBreakOff(Pointer ftHandle);
 
-    int FT_SetWaitMask(int ftHandle, int Mask);
+    int FT_SetWaitMask(Pointer ftHandle, int Mask);
 
-    int FT_WaitOnMask(int ftHandle, IntByReference Mask);
+    int FT_WaitOnMask(Pointer ftHandle, IntByReference Mask);
 
-    int FT_GetEventStatus(int ftHandle, IntByReference Mask);
+    int FT_GetEventStatus(Pointer ftHandle, IntByReference Mask);
 
     /**
      * This function purges receive and transmit buffers in the device. 
@@ -1229,13 +1229,13 @@ public interface FTD2XX extends Library {
      */
     int FT_EE_Read(Pointer ftHandle, FT_PROGRAM_DATA.ByReference pData);
 
-    int FT_EE_ReadConfig(int ftHandle, byte ucAddress, Pointer pucValue);
+    int FT_EE_ReadConfig(Pointer ftHandle, byte ucAddress, Pointer pucValue);
 
-    int FT_EE_WriteConfig(int ftHandle, byte ucAddress, byte ucValue);
+    int FT_EE_WriteConfig(Pointer ftHandle, byte ucAddress, byte ucValue);
 
-    int FT_EE_ReadECC(int ftHandle, byte ucOption, ShortByReference lpwValue);
+    int FT_EE_ReadECC(Pointer ftHandle, byte ucOption, ShortByReference lpwValue);
 
-    int FT_GetQueueStatusEx(int ftHandle, byte ucAddress, IntByReference dwRxBytes);
+    int FT_GetQueueStatusEx(Pointer ftHandle, byte ucAddress, IntByReference dwRxBytes);
 
     /**
      * Read the contents of the EEPROM and pass strings separately. 
@@ -1332,11 +1332,11 @@ public interface FTD2XX extends Library {
      * @return FT_STATUS: FT_OK if successful, otherwise the return value is an 
      * FT error code.
      */
-    int FT_EEPROM_Read(int ftHandle, Pointer eepromData, int eepromDataSize, 
+    int FT_EEPROM_Read(Pointer ftHandle, Pointer eepromData, int eepromDataSize, 
             String Manufacturer, String ManufacturerId, String Description,
             String SerialNumber);
 
-    int FT_EEPROM_Program(int ftHandle, Pointer eepromData, int eepromDataSize, 
+    int FT_EEPROM_Program(Pointer ftHandle, Pointer eepromData, int eepromDataSize, 
             String Manufacturer, String ManufacturerId, String Description,
             String SerialNumber);
 
