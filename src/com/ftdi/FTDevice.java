@@ -710,18 +710,18 @@ public class FTDevice {
      * Read bytes from device.
      * @param bytes Bytes array to store read bytes
      * @param offset Start index.
-     * @param lenght Amount of bytes to read
+     * @param length Amount of bytes to read
      * @return Number of bytes actually read
      * @throws FTD2XXException If something goes wrong.
      */
-    public int read(byte[] bytes, int offset, int lenght)
+    public int read(byte[] bytes, int offset, int length)
             throws FTD2XXException {
-        Memory memory = new Memory(lenght);
+        Memory memory = new Memory(length);
         IntByReference read = new IntByReference();
+        
+        ensureFTStatus(ftd2xx.FT_Read(ftHandle, memory, length, read));
 
-        ensureFTStatus(ftd2xx.FT_Read(ftHandle, memory, lenght, read));
-
-        memory.read(0, bytes, offset, lenght);
+        memory.read(0, bytes, offset, length);
 
         return read.getValue();
     }
