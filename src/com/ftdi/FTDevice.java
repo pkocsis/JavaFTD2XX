@@ -24,8 +24,12 @@
 package com.ftdi;
 
 import com.sun.jna.Memory;
+import com.sun.jna.Platform;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,13 +48,13 @@ public class FTDevice {
     static private final FTD2XX ftd2xx = FTD2XX.INSTANCE;
     private final int devID, devLocationID, flag;
     private final DeviceType devType;
-    private int ftHandle;
+    private Pointer ftHandle;
     private final String devSerialNumber, devDescription;
     private FTDeviceInputStream fTDeviceInputStream = null;
     private FTDeviceOutputStream fTDeviceOutputStream = null;
 
     private FTDevice(DeviceType devType, int devID, int devLocationID,
-            String devSerialNumber, String devDescription, int ftHandle,
+            String devSerialNumber, String devDescription, Pointer ftHandle,
             int flag) {
         this.devType = devType;
         this.devID = devID;
@@ -108,7 +112,24 @@ public class FTDevice {
     public int getFlag() {
         return flag;
     }
-
+    
+    /**
+     * Is this FTDevice opened?
+     * @return True if FTDevice is opened.
+     */
+    public boolean isOpened(){
+        return (flag & FTD2XX.FT_FLAGS_OPENED) != 0;
+    }
+    
+    /**
+     * Is the device enumerated as a high-speed USB device?
+     * @return True if the device is enumerated as a high-speed USB device, false
+     * if full-speed.
+     */
+    public boolean isHighSpeed(){
+        return (flag & FTD2XX.FT_FLAGS_HISPEED) != 0;
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -124,7 +145,7 @@ public class FTDevice {
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 97 * hash + this.ftHandle;
+        hash = (int) (97 * hash + ftHandle.hashCode());
         return hash;
     }
 
@@ -145,7 +166,7 @@ public class FTDevice {
         IntByReference devType = new IntByReference();
         IntByReference devID = new IntByReference();
         IntByReference locID = new IntByReference();
-        IntByReference ftHandle = new IntByReference();
+        PointerByReference ftHandle = new PointerByReference();
         Memory devSerNum = new Memory(16);
         Memory devDesc = new Memory(64);
 
@@ -154,7 +175,33 @@ public class FTDevice {
 
         return new FTDevice(DeviceType.values()[devType.getValue()],
                 devID.getValue(), locID.getValue(), devSerNum.getString(0),
-                devDesc.getString(0), ftHandle.getValue(), flag.getValue());
+                devDesc.getString(0), ftHandle.getPointer(), flag.getValue());
+    }
+    
+    /**
+     * A command to include a custom VID and PID combination within the internal
+     * device list table. This will allow the driver to load for the specified
+     * VID and PID combination. Only supported on Linux and Mac OS X.
+     *
+     * @param dwVID Device Vendor ID (VID)
+     * @param dwPID Device Product ID (PID)
+     * @throws FTD2XXException If something goes wrong.
+     */
+    public static void setVidPid(int dwVID, int dwPID) throws FTD2XXException {
+        if (Platform.isLinux() || Platform.isMac()) {
+            Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
+                    "Setting custom VID/PID to {0}/{1}.",
+                    new Object[]{toHex4(dwVID), toHex4(dwPID)});
+            ensureFTStatus(ftd2xx.FT_SetVIDPID(dwVID, dwPID));
+        } else {
+            Logger.getLogger(FTDevice.class.getName()).log(Level.INFO,
+                    "Ignoring request to set VID/PID. Windows not supported.");
+        }
+    }
+    
+    private static String toHex4(int value) {
+        // Bitwise and (&) with 0xFFFF is to ensure unsigned value.
+        return String.format("0x%04x", (0xFFFF & value));
     }
 
     /**
@@ -298,9 +345,9 @@ public class FTDevice {
      * @throws FTD2XXException If something goes wrong.
      */
     public void open() throws FTD2XXException {
-        Memory memory = new Memory(16);
+        Memory memory = new Memory(64);
         memory.setString(0, devSerialNumber);
-        IntByReference handle = new IntByReference();
+        PointerByReference handle = new PointerByReference();
         ensureFTStatus(ftd2xx.FT_OpenEx(memory, FTD2XX.FT_OPEN_BY_SERIAL_NUMBER,
                 handle));
         this.ftHandle = handle.getValue();
@@ -457,7 +504,7 @@ public class FTDevice {
      */
     public void setLatencyTimer(short timer) throws FTD2XXException,
             IllegalArgumentException {
-        if (!((timer > 2) && (timer < 255))) {
+        if (!((timer >=1) && (timer < 255))) {
             throw new IllegalArgumentException("Valid range is 2 – 255!");
         }
         ensureFTStatus(ftd2xx.FT_SetLatencyTimer(ftHandle, (byte) timer));
@@ -663,18 +710,18 @@ public class FTDevice {
      * Read bytes from device.
      * @param bytes Bytes array to store read bytes
      * @param offset Start index.
-     * @param lenght Amount of bytes to read
+     * @param length Amount of bytes to read
      * @return Number of bytes actually read
      * @throws FTD2XXException If something goes wrong.
      */
-    public int read(byte[] bytes, int offset, int lenght)
+    public int read(byte[] bytes, int offset, int length)
             throws FTD2XXException {
-        Memory memory = new Memory(lenght);
+        Memory memory = new Memory(length);
         IntByReference read = new IntByReference();
+        
+        ensureFTStatus(ftd2xx.FT_Read(ftHandle, memory, length, read));
 
-        ensureFTStatus(ftd2xx.FT_Read(ftHandle, memory, lenght, read));
-
-        memory.read(0, bytes, offset, lenght);
+        memory.read(0, bytes, offset, length);
 
         return read.getValue();
     }
