@@ -456,14 +456,14 @@ public class FTDevice {
     /**
      * Set the latency timer value.
      * @param timer Latency timer value in milliseconds. 
-     * Valid range is 2 â€“ 255.
+     * Valid range is 2 - 255.
      * @throws FTD2XXException If something goes wrong.
      * @throws IllegalArgumentException If timer was not in range 2 - 255.
      */
     public void setLatencyTimer(short timer) throws FTD2XXException,
             IllegalArgumentException {
         if (!((timer > 2) && (timer < 255))) {
-            throw new IllegalArgumentException("Valid range is 2 â€“ 255!");
+            throw new IllegalArgumentException("Valid range is 2 - 255!");
         }
         ensureFTStatus(ftd2xx.FT_SetLatencyTimer(ftHandle, (byte) timer));
     }
