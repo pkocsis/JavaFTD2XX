@@ -48,6 +48,7 @@ public class FTDevice {
     private final String devSerialNumber, devDescription;
     private FTDeviceInputStream fTDeviceInputStream = null;
     private FTDeviceOutputStream fTDeviceOutputStream = null;
+    private boolean open = false;
 
     private FTDevice(DeviceType devType, int devID, int devLocationID,
             String devSerialNumber, String devDescription, int ftHandle,
@@ -59,6 +60,7 @@ public class FTDevice {
         this.devDescription = devDescription;
         this.ftHandle = ftHandle;
         this.flag = flag;
+        this.open = false;
     }
 
     /**
@@ -304,6 +306,7 @@ public class FTDevice {
         ensureFTStatus(ftd2xx.FT_OpenEx(memory, FTD2XX.FT_OPEN_BY_SERIAL_NUMBER,
                 handle));
         this.ftHandle = handle.getValue();
+        open = true;
     }
 
     /**
@@ -311,6 +314,8 @@ public class FTDevice {
      * @throws FTD2XXException If something goes wrong.
      */
     public void close() throws FTD2XXException {
+    	if (!open) return;
+    	open = false;
         ensureFTStatus(ftd2xx.FT_Close(ftHandle));
     }
 
@@ -451,14 +456,14 @@ public class FTDevice {
     /**
      * Set the latency timer value.
      * @param timer Latency timer value in milliseconds. 
-     * Valid range is 2 – 255.
+     * Valid range is 2 â€“ 255.
      * @throws FTD2XXException If something goes wrong.
      * @throws IllegalArgumentException If timer was not in range 2 - 255.
      */
     public void setLatencyTimer(short timer) throws FTD2XXException,
             IllegalArgumentException {
         if (!((timer > 2) && (timer < 255))) {
-            throw new IllegalArgumentException("Valid range is 2 – 255!");
+            throw new IllegalArgumentException("Valid range is 2 â€“ 255!");
         }
         ensureFTStatus(ftd2xx.FT_SetLatencyTimer(ftHandle, (byte) timer));
     }
